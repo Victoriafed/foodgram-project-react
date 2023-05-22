@@ -15,11 +15,6 @@ class User(AbstractUser):
         max_length=150,
         unique=True,
     )
-    password = models.CharField(
-        verbose_name=('Пароль'),
-        max_length=150,
-        help_text=('Введите пароль'),
-    )
     first_name = models.CharField(
         verbose_name=('Имя'),
         max_length=150,
@@ -34,7 +29,6 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [
         'username',
-        'password',
         'first_name',
         'last_name',
     ]
@@ -43,3 +37,24 @@ class User(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ['-id']
+
+
+class Subscribe(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='subscriber',
+        verbose_name="Подписчик",
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        User,
+        related_name='subscribing',
+        verbose_name="Автор",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        ordering = ['-id']
+        unique_together = ['user', 'author', ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'

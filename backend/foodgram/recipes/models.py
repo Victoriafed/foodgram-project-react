@@ -72,7 +72,7 @@ class Recipe(models.Model):
         validators=(MinValueValidator(1),))
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='IngredientRecipeRelation',
+        through='IngredientRecipe',
         related_name='recipes',
         verbose_name='Ингредиенты'
     )
@@ -143,7 +143,7 @@ class ShoppingСart(models.Model):
         return f'Рецепт {self.recipe} в списке покупок'
 
 
-class IngredientRecipeRelation(models.Model):
+class IngredientRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
