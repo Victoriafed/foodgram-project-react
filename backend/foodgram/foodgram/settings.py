@@ -158,8 +158,8 @@ REST_FRAMEWORK = {
 DJOSER = {
     'SERIALIZERS': {
         'user_create': 'api.serializers.UserCreateSerializer',
-        'user': 'api.serializers.UserSerializer',
-        'current_user': 'api.serializers.UserSerializer',
+        'user': 'api.serializers.UserCreateSerializer',
+        'current_user': 'api.serializers.UserCreateSerializer',
     },
 
     'PERMISSIONS': {
@@ -177,3 +177,4 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'users.User'
+
