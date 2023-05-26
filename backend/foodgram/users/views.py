@@ -13,7 +13,7 @@ from .models import Subscribe
 User = get_user_model()
 
 
-class CustomUserViewSet(UserViewSet):
+class UserViewSet(UserViewSet):
     pagination_class = CustomPagination
 
     @action(
