@@ -23,6 +23,18 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
         )
+#        extra_kwargs = {'password': {'write_only': True}}
+#
+#        def create(self, validated_data):
+#            user = User(
+#                email=validated_data['email'],
+#                username=validated_data['username'],
+#                first_name=validated_data['first_name'],
+#                last_name=validated_data['last_name'],
+#            )
+#            user.set_password(validated_data['password'])
+#            user.save()
+#            return user
 
         def get_is_subscribed(self, obj):
             user = self.context.get('request').user
@@ -32,6 +44,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = User
         fields = (
@@ -40,26 +54,13 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'password',
         )
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user = User(
-            email=validated_data['email'],
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ('id', 'name', 'color', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -75,7 +76,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     name = serializers.StringRelatedField(source='ingredient.name')
 
     class Meta:
-        fields = ('id', 'name', 'measurement_unit')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
         model = IngredientRecipe
 
 
