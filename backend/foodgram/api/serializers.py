@@ -122,7 +122,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'id',
-            'ingredients'
+            'ingredients',
             'tags',
             'image',
             'name',
