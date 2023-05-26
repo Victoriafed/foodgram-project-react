@@ -6,7 +6,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.pagination import CustomPageNumberPagination
+from api.pagination import CustomPagination
 from api.serializers import SubscribeSerializer
 from .models import Subscribe
 
@@ -14,7 +14,7 @@ User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
-    pagination_class = CustomPageNumberPagination
+    pagination_class = CustomPagination
 
     @action(
         detail=True,
