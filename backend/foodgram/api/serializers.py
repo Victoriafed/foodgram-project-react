@@ -114,8 +114,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeModifySerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
     ingredients = IngredientRecipeSerializer(many=True)
-    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     image = Base64ImageField()
 
     class Meta:
@@ -131,7 +131,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
-        request = self.context.get('request') #None
+        request = self.context.get('request')
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=request.user, **validated_data)
