@@ -56,3 +56,18 @@ class UsersViewSet(viewsets.ModelViewSet):
                                          many=True,
                                          context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=False, methods=('get', 'patch', 'post',),
+        url_path='me', url_name='me',
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def get_user_me(self, request):
+        serializer = self.get_serializer(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
