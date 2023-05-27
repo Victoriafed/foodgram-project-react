@@ -148,13 +148,13 @@ class RecipeIngredient(models.Model):
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
-        related_name='ingredient',
+        related_name='amount',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         verbose_name='Ингредиент',
         on_delete=models.CASCADE,
-        related_name='recipe',
+        related_name='amount',
     )
     amount = models.PositiveSmallIntegerField(
         'Количество', validators=(MinValueValidator(1),))
@@ -165,7 +165,7 @@ class RecipeIngredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('recipe', 'ingredient'),
-                name='Unique ingredient in recipe')
+                name='Unique_ingredient_in_recipe')
         ]
         db_table = 'recipes_recipe_ingredient'
 
