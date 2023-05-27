@@ -167,6 +167,7 @@ class IngredientRecipe(models.Model):
                 fields=('recipe', 'ingredient'),
                 name='Unique ingredient in recipe')
         ]
+        db_table = 'recipes_recipe_ingredient'
 
     def __str__(self):
         return (
