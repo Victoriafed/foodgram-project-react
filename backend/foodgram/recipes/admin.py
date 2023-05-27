@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Favorite, Ingredient, Recipe, ShoppingСart, Tag, IngredientRecipe
+from .models import Favorite, Ingredient, Recipe, ShoppingСart, Tag, RecipeIngredient
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -19,7 +19,7 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorites.count()
 
 
-class IngredientRecipeAdmin(admin.ModelAdmin):
+class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('id', 'recipe', 'ingredient', 'amount')
     search_fields = ('recipe', 'ingredient',)
     list_filter = ('recipe', 'ingredient',)
@@ -45,4 +45,4 @@ admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
 admin.site.register(ShoppingСart, ShoppingAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(IngredientRecipe, IngredientRecipeAdmin)
+admin.site.register(RecipeIngredient, RecipeIngredientAdmin)

@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+from recipes.models import (Favorite, Ingredient, RecipeIngredient, Recipe,
                             ShoppingСart, Tag)
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -92,7 +92,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if not user.shopping_cart.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
 
-        ingredients = IngredientRecipe.objects.filter(
+        ingredients = RecipeIngredient.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',

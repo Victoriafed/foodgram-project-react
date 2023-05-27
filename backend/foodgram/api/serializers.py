@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import F
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, IngredientRecipe, Recipe, Tag
+from recipes.models import Ingredient, RecipeIngredient, Recipe, Tag
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField
@@ -83,7 +83,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class IngredientRecipeSerializer(serializers.ModelSerializer):
+class RecipeIngredientSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all()
     )
@@ -91,7 +91,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit', 'amount')
-        model = IngredientRecipe
+        model = RecipeIngredient
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -142,7 +142,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeModifySerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientRecipeSerializer(many=True)
+    ingredients = RecipeIngredientSerializer(many=True)
     image = Base64ImageField()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -186,7 +186,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         self.fields.pop('ingredients')
         self.fields.pop('tags')
         representation = super().to_representation(instance)
-        representation['ingredients'] = IngredientRecipeSerializer(
+        representation['ingredients'] = RecipeIngredientSerializer(
             IngredientRecipe.objects.filter(recipe=instance), many=True
         ).data
         representation['tags'] = TagSerializer(
