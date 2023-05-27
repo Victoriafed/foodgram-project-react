@@ -144,6 +144,10 @@ class RecipeModifySerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     ingredients = IngredientRecipeSerializer(many=True)
     image = Base64ImageField()
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
+    )
 
     class Meta:
         model = Recipe
@@ -155,7 +159,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
             'name',
             'text',
             'cooking_time'
-    )
+        )
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -163,7 +167,11 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
-        self.create_ingredients_amounts(recipe=recipe, ingredients=ingredients)
+        for ingredient in ingredients:
+            IngredientRecipe.objects.create(
+                recipe=recipe, ingredient=ingredient['ingredient'],
+                amount=ingredient['amount']
+            ).save()
         return recipe
 
     def update(self, instance, validated_data):
@@ -173,6 +181,18 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         self.create_ingredients(instance, ingredients)
         return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        self.fields.pop('ingredients')
+        self.fields.pop('tags')
+        representation = super().to_representation(instance)
+        representation['ingredients'] = IngredientRecipeSerializer(
+            IngredientRecipe.objects.filter(recipe=instance), many=True
+        ).data
+        representation['tags'] = TagSerializer(
+            instance.tags, many=True
+        ).data
+        return representation
 
 
 class RecipeSubscribeSerializer(serializers.ModelSerializer):
