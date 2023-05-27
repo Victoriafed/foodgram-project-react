@@ -92,14 +92,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_ingredients(self, obj):
-        recipe = obj
-        ingredients = recipe.ingredients.values(
-            'id',
-            'name',
-            'measurement_unit',
-            amount=F('ingredientrecipe__amount')
-        )
-        return ingredients
+        recipe_ingredients = RecipeIngredient.objects.filter(recipe=obj)
+        return RecipeIngredientSerializer(recipe_ingredients,
+                                             many=True).data
 
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
@@ -142,7 +137,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
         for ingredient in ingredients:
-            IngredientRecipe.objects.create(
+            RecipeIngredient.objects.create(
                 recipe=recipe, ingredient=ingredient['ingredient'],
                 amount=ingredient['amount']
             ).save()
@@ -150,7 +145,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.tags.clear()
-        IngredientRecipe.objects.filter(recipe=instance).delete()
+        RecipeIngredient.objects.filter(recipe=instance).delete()
         instance.tags.set(validated_data.pop('tags'))
         ingredients = validated_data.pop('ingredients')
         self.create_ingredients(instance, ingredients)
@@ -161,7 +156,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         self.fields.pop('tags')
         representation = super().to_representation(instance)
         representation['ingredients'] = RecipeIngredientSerializer(
-            IngredientRecipe.objects.filter(recipe=instance), many=True
+            RecipeIngredient.objects.filter(recipe=instance), many=True
         ).data
         representation['tags'] = TagSerializer(
             instance.tags, many=True
