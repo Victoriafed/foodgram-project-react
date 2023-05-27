@@ -1,5 +1,3 @@
-from api.pagination import CustomPagination
-from api.serializers import SubscribeSerializer
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import status
@@ -8,6 +6,8 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.pagination import CustomPagination
+from api.serializers import SubscribeSerializer
 from .models import Subscribe
 
 User = get_user_model()

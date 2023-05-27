@@ -25,10 +25,16 @@ class User(AbstractUser):
         max_length=150,
         help_text=('Введите фамилию'),
     )
+    password = models.CharField(
+        verbose_name='Пароль',
+        max_length=150,
+        help_text=('Введите пароль'),
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [
         'username',
+        'password',
         'first_name',
         'last_name',
     ]
@@ -36,6 +42,12 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['email', 'username'],
+                name='unique_auth'
+            ),
+        ]
         ordering = ['-id']
 
 
