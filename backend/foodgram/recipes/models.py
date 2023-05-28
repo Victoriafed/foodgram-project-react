@@ -80,6 +80,9 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Теги',
         related_name='recipes')
+    image = models.ImageField(
+        verbose_name='Изображение',
+        upload_to='recipe_img/')
 
     class Meta:
         verbose_name = 'Рецепт'

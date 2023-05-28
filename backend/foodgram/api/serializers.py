@@ -4,45 +4,34 @@ from drf_extra_fields.fields import Base64ImageField
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from users.models import Subscribe
+from djoser.serializers import UserCreateSerializer
 
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-        )
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
+        user = self.context['request'].user
         if user.is_anonymous:
             return False
         return Subscribe.objects.filter(user=user, author=obj).exists()
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
-
-    class Meta:
+    class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'password',
-        )
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'password')
 
 
 class TagSerializer(serializers.ModelSerializer):

@@ -13,7 +13,7 @@ from .models import Subscribe
 User = get_user_model()
 
 
-class UsersViewSet(DjoserUserViewSet):
+class UserViewSet(DjoserUserViewSet):
     pagination_class = CustomPagination
 
     @action(
