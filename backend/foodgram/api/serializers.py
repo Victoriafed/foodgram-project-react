@@ -12,6 +12,13 @@ from djoser.serializers import UserCreateSerializer
 User = get_user_model()
 
 
+class UsersCreateSerializer(UserCreateSerializer):
+    class Meta(UserCreateSerializer.Meta):
+        model = User
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'password')
+
+
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
@@ -25,13 +32,6 @@ class UserSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return False
         return Subscribe.objects.filter(user=user, author=obj).exists()
-
-
-class UserCreateSerializer(serializers.ModelSerializer):
-    class Meta(UserCreateSerializer.Meta):
-        model = User
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'password')
 
 
 class TagSerializer(serializers.ModelSerializer):

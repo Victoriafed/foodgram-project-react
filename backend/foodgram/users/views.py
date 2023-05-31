@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from djoser.views import UserViewSet as DjoserUserViewSet
+from djoser.views import UserViewSet as DjoserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -13,7 +13,7 @@ from .models import Subscribe
 User = get_user_model()
 
 
-class UserViewSet(DjoserUserViewSet):
+class UserViewSet(DjoserViewSet):
     pagination_class = CustomPagination
 
     @action(
