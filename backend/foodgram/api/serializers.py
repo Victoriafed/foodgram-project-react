@@ -183,6 +183,7 @@ class RecipeSubscribeSerializer(serializers.ModelSerializer):
 class SubscribeSerializer(serializers.ModelSerializer):
     recipes_count = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     model = User
     fields = (
@@ -197,8 +198,11 @@ class SubscribeSerializer(serializers.ModelSerializer):
     )
     read_only_fields = '__all__'
 
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
+    def get_is_subscribed(self, obj):
+        return Subscribe.objects.filter(
+            user=obj.user,
+            author=obj.author
+        ).exists()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -210,6 +214,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
                                                read_only=True)
         return serializer.data
 
+"""
     def validate(self, data):
         author = self.instance
         user = self.context.get('request').user
@@ -224,3 +229,4 @@ class SubscribeSerializer(serializers.ModelSerializer):
                 code=status.HTTP_400_BAD_REQUEST
             )
         return data
+"""

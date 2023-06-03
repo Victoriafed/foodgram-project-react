@@ -67,6 +67,14 @@ class Subscribe(models.Model):
 
     class Meta:
         ordering = ['-id']
-        unique_together = ['user', 'author', ]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscribe'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}'
