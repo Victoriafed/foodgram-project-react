@@ -182,23 +182,20 @@ class RecipeSubscribeSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscribeSerializer(serializers.ModelSerializer):
-    recipes_count = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
+class FollowSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='author.id')
+    email = serializers.ReadOnlyField(source='author.email')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.ReadOnlyField(source='author.recipes.count')
 
-    model = User
-    fields = (
-        'email',
-        'id',
-        'username',
-        'first_name',
-        'last_name',
-        'is_subscribed',
-        'recipes',
-        'recipes_count',
-    )
-    read_only_fields = '__all__'
+    class Meta:
+        model = Subscribe
+        fields = ('id', 'email', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count')
 
     def get_is_subscribed(self, obj):
         return Subscribe.objects.filter(
@@ -209,12 +206,10 @@ class SubscribeSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
+        queryset = Recipe.objects.filter(author=obj.author)
         if limit:
-            recipes = recipes[:int(limit)]
-        serializer = RecipeSubscribeSerializer(recipes, many=True,
-                                               read_only=True)
-        return serializer.data
+            queryset = queryset[:int(limit)]
+        return RecipeSubscribeSerializer(queryset, many=True).data
 
 """
     def validate(self, data):
