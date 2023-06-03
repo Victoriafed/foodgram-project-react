@@ -114,6 +114,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'id',
+            'author',
             'ingredients',
             'tags',
             'image',
@@ -121,6 +122,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
             'text',
             'cooking_time'
         )
+        read_only_fields = ('id', 'author', 'tags')
 
     @staticmethod
     def add_ingredients(ingredients, recipe):
