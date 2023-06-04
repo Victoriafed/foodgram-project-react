@@ -3,25 +3,39 @@ from django.db import models
 
 
 class User(AbstractUser):
+    """
+        Модель пользователя.Содержит обязательные поля email, username,
+        first_name,last_name,password.
+    """
     username = models.CharField(
-        'Логин',
+        verbose_name='Логин',
         max_length=150,
         unique=True,
-        error_messages={
-            'unique': 'Пользователь с таким username уже существует.',
-        }
+        help_text='Введите имя пользователя'
     )
-    password = models.CharField('Пароль', max_length=150)
+    password = models.CharField(
+        verbose_name='Пароль',
+        max_length=150,
+        help_text='Введите пароль'
+    )
     email = models.EmailField(
-        'Почта',
+        verbose_name='Почта',
         max_length=254,
         unique=True,
+        help_text='Введите почту',
         error_messages={
             'unique': 'Пользователь с таким e-mail уже существует.',
         }
     )
-    first_name = models.CharField('Имя', max_length=150)
-    last_name = models.CharField('Фамилия', max_length=150)
+    first_name = models.CharField(
+        verbose_name='Имя',
+        max_length=150,
+        help_text='Введите ваше имя')
+    last_name = models.CharField(
+        verbose_name='Фамилия',
+        max_length=150,
+        help_text='Введите вашу фамилию'
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [
@@ -52,6 +66,10 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
+    """
+        Модель подписок.Содержит поля пользователя и автора(пользователя на
+        которого подписываются).
+    """
     user = models.ForeignKey(
         User,
         related_name='subscriber',
@@ -61,7 +79,7 @@ class Subscribe(models.Model):
     author = models.ForeignKey(
         User,
         related_name='subscribing',
-        verbose_name="Автор",
+        verbose_name="Автор рецепта",
         on_delete=models.CASCADE,
     )
 
