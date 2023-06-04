@@ -140,7 +140,7 @@ class ShoppingСart(models.Model):
         verbose_name_plural = 'Список покупок'
         constraints = [
             models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='Unique shopping cart')
+                                    name='Unique_shopping_cart')
         ]
 
     def __str__(self):
