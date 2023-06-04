@@ -46,6 +46,8 @@ class User(AbstractUser):
     ]
 
     class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         ordering = ('id',)
         constraints = [
             models.UniqueConstraint(
@@ -53,16 +55,9 @@ class User(AbstractUser):
                 name='unique_auth'
             ),
         ]
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.username
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-        ordering = ['-id']
 
 
 class Subscribe(models.Model):

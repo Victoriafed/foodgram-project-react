@@ -6,14 +6,19 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
+    """
+        Модель ингредиента.Содержит поля name, measurement_unit.
+    """
     name = models.CharField(
         max_length=200,
         verbose_name='Название ингредиента',
-        db_index=True
+        db_index=True,
+        help_text='Введите название ингредиента'
     )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
-        max_length=30
+        max_length=30,
+        help_text='Введите единицу измерения'
     )
 
     class Meta:
@@ -26,15 +31,20 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
+    """
+        Модель тега.Содержит поля name, color, slug.
+    """
     name = models.CharField(
         verbose_name='Название',
         unique=True,
-        max_length=200
+        max_length=200,
+        help_text='Введите название тега'
     )
     color = models.CharField(
         verbose_name='Код цвета',
         unique=True,
         max_length=7,
+        help_text='Введите название цвета в формате HEX',
         validators=[
             RegexValidator(
                 regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
@@ -44,20 +54,27 @@ class Tag(models.Model):
     )
     slug = models.SlugField(
         verbose_name='Адрес тега',
+        help_text='Введите адрес тега',
         unique=True
     )
 
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
 
 
 class Recipe(models.Model):
+    """
+        Модель рецепта.Содержит поля name, author, text, cooking_time,
+        ingredients, tags, image.
+    """
     name = models.CharField(
         verbose_name='Название рецепта',
+        help_text='Введите название рецепта',
         max_length=200
     )
     author = models.ForeignKey(
@@ -66,22 +83,31 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Автор'
     )
-    text = models.TextField(verbose_name='Описание рецепта')
+    text = models.TextField(
+        verbose_name='Описание рецепта',
+        help_text='Напишите описаниние рецепта'
+    )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
-        validators=(MinValueValidator(1),))
+        help_text='Введите время приготовления (более 1 мин)',
+        validators=(MinValueValidator(1),)
+    )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
         related_name='recipes',
-        verbose_name='Ингредиенты'
+        verbose_name='Ингредиенты',
+        help_text='Выберите ингредиенты'
     )
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
-        related_name='recipes')
+        related_name='recipes',
+        help_text='Выберите теги'
+    )
     image = models.ImageField(
         verbose_name='Изображение',
+        help_text='Вставьте изображение блюда',
         upload_to='recipe_img/'
     )
 
@@ -95,6 +121,9 @@ class Recipe(models.Model):
 
 
 class Favorite(models.Model):
+    """
+        Модель избранное. Связывает пользователя и конкретный рецепт.
+    """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -122,6 +151,9 @@ class Favorite(models.Model):
 
 
 class ShoppingСart(models.Model):
+    """
+        Модель список покупок. Добавляет рецепт в список.
+    """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -148,6 +180,9 @@ class ShoppingСart(models.Model):
 
 
 class RecipeIngredient(models.Model):
+    """
+        Модель ингредиенты в рецепте. Связывает ингредиенты с рецептом.
+    """
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
