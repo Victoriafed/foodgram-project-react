@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingСart, Tag)
+                            ShoppingСart, Tag, Subdcribe)
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
@@ -52,9 +52,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Favorite, request.user, pk)
+            return self.add_to(Subdcribe, request.user, pk)
         else:
-            return self.delete_from(Favorite, request.user, pk)
+            return self.delete_from(Subdcribe, request.user, pk)
 
     @action(
         detail=True,
