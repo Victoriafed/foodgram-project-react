@@ -190,8 +190,8 @@ class SubscribeSerializer(serializers.ModelSerializer):
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.ReadOnlyField(source='author.recipes.count')
+    recipes = RecipeSubscribeSerializer(many=True, read_only=True)
+    recipes_count = SerializerMethodField()
 
     class Meta:
         model = Subscribe
@@ -211,6 +211,9 @@ class SubscribeSerializer(serializers.ModelSerializer):
         if limit:
             queryset = queryset[:int(limit)]
         return RecipeSubscribeSerializer(queryset, many=True).data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
 
 """
     def validate(self, data):
