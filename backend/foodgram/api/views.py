@@ -58,9 +58,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Favorite, request.user, pk)
+            recipe = get_object_or_404(Recipe, pk=pk)
+            if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
+                return Response(
+                    {'errors': 'Рецепт уже есть в избранном/списке покупок'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            Favorite.objects.get_or_create(user=request.user, recipe=recipe)
+            data = RecipeSubscribeSerializer(recipe).data
+            return Response(data, status=status.HTTP_201_CREATED)
         else:
-            return self.delete_from(Favorite, request.user, pk)
+            recipe = get_object_or_404(Recipe, pk=pk)
+            if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
+                follow = get_object_or_404(Favorite, user=request.user,
+                                           recipe=recipe)
+                follow.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=True,
