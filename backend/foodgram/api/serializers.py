@@ -154,24 +154,29 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         recipe.tags.set(tags_data)
         return super().update(recipe, validated_data)
 
-    def update(self, recipe, validated_data):
-        if 'tags' in self.validated_data:
-            tags_data = validated_data.pop('tags')
-            recipe.tags.set(tags_data)
-        if 'ingredients' in self.validated_data:
-            ingredients_data = validated_data.pop('ingredients')
-            amount_set = RecipeIngredient.objects.filter(
-                recipe__id=recipe.id)
-            amount_set.delete()
-            objs = []
-            for ingredient, amount in ingredients_data.values():
-                objs.append(RecipeIngredient(
-                    recipe=recipe,
-                    ingredients=ingredient,
-                    amount=amount
-                ))
-            RecipeIngredient.objects.bulk_create(objs)
-        return super().update(recipe, validated_data)
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.image = validated_data.get('image', instance.image)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
+        instance.ingredients.clear()
+        if 'ingredients_recipe' in validated_data:
+            ingredients_data = validated_data.pop('ingredients_recipe')
+            updates = []
+            for ingredient in ingredients_data:
+                cur_ingr, status = RecipeIngredient.objects.get_or_create(
+                    recipe_id=instance.id,
+                    ingredient_id=ingredient['ingredient']['id'],
+                    amount=ingredient['amount']
+                )
+                updates.append(cur_ingr)
+            instance.ingredients_recipe.set(updates)
+        tags = validated_data.pop('tags')
+        instance.tags.set(tags)
+        instance.save()
+        return instance
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
