@@ -99,7 +99,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return False
         return obj.favorites.filter(user=user).exists()
-        # TODO: fix show favorited
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
@@ -145,15 +144,15 @@ class RecipeModifySerializer(serializers.ModelSerializer):
             )
 
     def create(self, validated_data):
-            author = self.context.get('request').user
-            tags_data = validated_data.pop('tags')
-            ingredients_data = validated_data.pop('ingredients')
-            image = validated_data.pop('image')
-            recipe = Recipe.objects.create(image=image, author=author,
-                                           **validated_data)
-            self.add_ingredients(ingredients_data, recipe)
-            recipe.tags.set(tags_data)
-            return recipe
+        author = self.context.get('request').user
+        tags_data = validated_data.pop('tags')
+        ingredients_data = validated_data.pop('ingredients')
+        image = validated_data.pop('image')
+        recipe = Recipe.objects.create(image=image, author=author,
+                                       **validated_data)
+        self.add_ingredients(ingredients_data, recipe)
+        recipe.tags.set(tags_data)
+        return super().update(recipe, validated_data)
 
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
