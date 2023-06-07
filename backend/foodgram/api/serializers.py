@@ -213,7 +213,8 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return RecipeSubscribeSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
-        return obj.recipes.count()
+        queryset = Recipe.objects.filter(author=obj.author.id).count()
+        return queryset
 
 """
     def validate(self, data):
