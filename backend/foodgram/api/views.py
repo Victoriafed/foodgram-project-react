@@ -52,6 +52,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk):
+        is_favorited = self.request.query_params.get('is_favorited')
         if request.method == 'POST':
             return Recipe.objects.filter(favorites__user=self.request.user)
         else:
