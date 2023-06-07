@@ -1,1 +1,1 @@
-![Foodgram project](https://github.com/Victorifed/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+![Foodgram project](https://github.com/Victoriafed/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
