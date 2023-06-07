@@ -53,7 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['POST', 'DELETE'],
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk):
@@ -64,7 +64,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['POST', 'DELETE'],
         permission_classes=[permissions.IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
