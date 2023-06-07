@@ -107,6 +107,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         return user.shopping_cart.filter(recipe=obj).exists()
 
 
+def recipe_ingredient_create(ingredients_data, models, recipe):
+    bulk_create_data = (
+        models(
+            recipe=recipe,
+            ingredient=ingredient_data['ingredient'],
+            amount=ingredient_data['amount'])
+        for ingredient_data in ingredients_data
+    )
+    models.objects.bulk_create(bulk_create_data)
+
+
 class RecipeModifySerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(many=True)
@@ -144,39 +155,25 @@ class RecipeModifySerializer(serializers.ModelSerializer):
             )
 
     def create(self, validated_data):
-        author = self.context.get('request').user
-        tags_data = validated_data.pop('tags')
         ingredients_data = validated_data.pop('ingredients')
-        image = validated_data.pop('image')
-        recipe = Recipe.objects.create(image=image, author=author,
-                                       **validated_data)
-        self.add_ingredients(ingredients_data, recipe)
+        tags_data = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags_data)
-        return super().update(recipe, validated_data)
+        recipe_ingredient_create(ingredients_data, RecipeIngredient, recipe)
+        return recipe
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.image = validated_data.get('image', instance.image)
-        instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time
-        )
-        instance.ingredients.clear()
-        if 'ingredients_recipe' in validated_data:
-            ingredients_data = validated_data.pop('ingredients_recipe')
-            updates = []
-            for ingredient in ingredients_data:
-                cur_ingr, status = RecipeIngredient.objects.get_or_create(
-                    recipe_id=instance.id,
-                    ingredient_id=ingredient['ingredient']['id'],
-                    amount=ingredient['amount']
-                )
-                updates.append(cur_ingr)
-            instance.ingredients_recipe.set(updates)
-        tags = validated_data.pop('tags')
-        instance.tags.set(tags)
-        instance.save()
-        return instance
+        if 'tags' in self.validated_data:
+            tags_data = validated_data.pop('tags')
+            instance.tags.set(tags_data)
+        if 'ingredients' in self.validated_data:
+            ingredients_data = validated_data.pop('ingredients')
+            amount_set = RecipeIngredient.objects.filter(
+                recipe__id=instance.id)
+            amount_set.delete()
+            recipe_ingredient_create(ingredients_data, RecipeIngredient,
+                                     instance)
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
