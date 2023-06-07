@@ -228,7 +228,6 @@ class SubscribeSerializer(UserSerializer):
             queryset = queryset[:int(limit)]
         return RecipeSubscribeSerializer(queryset, many=True).data
 
-
 """
     def validate(self, data):
         author = self.instance
