@@ -71,7 +71,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     ingredients = serializers.SerializerMethodField()
-    is_favorited = serializers.SerializerMethodField(read_only=True)
+    is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
     image = Base64ImageField()
 
@@ -145,15 +145,15 @@ class RecipeModifySerializer(serializers.ModelSerializer):
             )
 
     def create(self, validated_data):
-                author = self.context.get('request').user
-                tags_data = validated_data.pop('tags')
-                ingredients_data = validated_data.pop('ingredients')
-                image = validated_data.pop('image')
-                recipe = Recipe.objects.create(image=image, author=author,
-                                               **validated_data)
-                self.add_ingredients(ingredients_data, recipe)
-                recipe.tags.set(tags_data)
-                return recipe
+            author = self.context.get('request').user
+            tags_data = validated_data.pop('tags')
+            ingredients_data = validated_data.pop('ingredients')
+            image = validated_data.pop('image')
+            recipe = Recipe.objects.create(image=image, author=author,
+                                           **validated_data)
+            self.add_ingredients(ingredients_data, recipe)
+            recipe.tags.set(tags_data)
+            return recipe
 
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')

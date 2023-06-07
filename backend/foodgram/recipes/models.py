@@ -142,8 +142,8 @@ class Favorite(models.Model):
         verbose_name = 'Избранныe рецепты'
         verbose_name_plural = 'Избранныe рецепты'
         constraints = [
-            models.UniqueConstraint(
-                fields=('recipe', 'user'), name='Unique favorite recipe')
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_favorite_recipes')
         ]
 
     def __str__(self):
