@@ -23,6 +23,7 @@ from .serializers import (IngredientSerializer, RecipeModifySerializer,
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    filterset_class = IngredientFilter
 
 
 class TagViewSet(viewsets.ModelViewSet):
