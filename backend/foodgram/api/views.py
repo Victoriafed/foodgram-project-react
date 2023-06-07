@@ -46,15 +46,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeSerializer
         return RecipeModifySerializer
 
+    def get_queryset(self):
+        is_favorited = self.request.query_params.get('is_favorited')
+        if is_favorited is not None and int(is_favorited) == 1:
+            return Recipe.objects.filter(favorites__user=self.request.user)
+
     @action(
         detail=True,
         methods=['post', 'delete'],
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk):
-        is_favorited = self.request.query_params.get('is_favorited')
         if request.method == 'POST':
-            return Recipe.objects.filter(favorites__user=self.request.user)
+            return self.add_to(Favorite, request.user, pk)
         else:
             return self.delete_from(Favorite, request.user, pk)
 
