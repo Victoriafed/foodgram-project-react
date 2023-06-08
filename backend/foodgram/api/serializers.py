@@ -15,8 +15,20 @@ User = get_user_model()
 class UsersCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'password')
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password'
+        )
+
+        def validate_password(self,password, username):
+            if password == username:
+                raise ValidationError(
+                    'Пароль не может совпадать с логином.'
+                )
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -171,7 +183,6 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         self.add_ingredients(ingredients, recipe)
         recipe.tags.set(tags)
         return super().update(recipe, validated_data)
-
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
