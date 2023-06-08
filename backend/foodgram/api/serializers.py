@@ -143,16 +143,16 @@ class RecipeModifySerializer(serializers.ModelSerializer):
 
     @staticmethod
     def add_ingredients(ingredients, recipe):
-        for ingredient in ingredients:
-            ingredient_id = ingredient['id']
-            amount = ingredient['amount']
-            if RecipeIngredient.objects.filter(
-                    recipe=recipe, ingredient=ingredient_id).exists():
-                amount += F('amount')
-            RecipeIngredient.objects.update_or_create(
-                recipe=recipe, ingredient=ingredient_id,
-                defaults={'amount': amount}
-            )
+        objs = []
+
+        for ingredient, amount in ingredients.values():
+            objs.append(RecipeIngredient(
+                recipe=recipe,
+                ingredients=ingredient,
+                amount=amount
+            ))
+
+        RecipeIngredient.objects.bulk_create(objs)
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -164,9 +164,10 @@ class RecipeModifySerializer(serializers.ModelSerializer):
 
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
+        if ingredients:
+            recipe.ingredients.clear()
+            self.add_ingredients(ingredients, recipe)
         tags = validated_data.pop('tags')
-        RecipeIngredient.objects.filter(recipe=recipe).delete()
-        self.add_ingredients(ingredients, recipe)
         recipe.tags.set(tags)
         return super().update(recipe, validated_data)
 
