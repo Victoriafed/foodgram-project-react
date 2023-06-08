@@ -173,7 +173,7 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         return super().update(recipe, validated_data)
 
 
-def to_representation(self, instance):
+    def to_representation(self, instance):
         self.fields.pop('ingredients')
         self.fields.pop('tags')
         representation = super().to_representation(instance)
