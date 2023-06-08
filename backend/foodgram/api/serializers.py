@@ -165,14 +165,14 @@ class RecipeModifySerializer(serializers.ModelSerializer):
 
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
-        if ingredients:
-            recipe.ingredients.clear()
-            self.add_ingredients(ingredients, recipe)
         tags = validated_data.pop('tags')
+        RecipeIngredient.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(ingredients, recipe)
         recipe.tags.set(tags)
         return super().update(recipe, validated_data)
 
-    def to_representation(self, instance):
+
+def to_representation(self, instance):
         self.fields.pop('ingredients')
         self.fields.pop('tags')
         representation = super().to_representation(instance)
