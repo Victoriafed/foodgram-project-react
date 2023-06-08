@@ -53,7 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         is_in_shopping_cart = self.request.query_params.get(
             'is_in_shopping_cart')
         if is_in_shopping_cart is not None and int(is_in_shopping_cart) == 1:
-            return Recipe.objects.filter(cart__user=self.request.user)
+            return Recipe.objects.filter(shopping_cart__user=self.request.user)
         return Recipe.objects.all()
 
     @action(
