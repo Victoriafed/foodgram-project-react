@@ -162,18 +162,13 @@ class RecipeModifySerializer(serializers.ModelSerializer):
         recipe_ingredient_create(ingredients_data, RecipeIngredient, recipe)
         return recipe
 
-    def update(self, instance, validated_data):
-        if 'tags' in self.validated_data:
-            tags_data = validated_data.pop('tags')
-            instance.tags.set(tags_data)
-        if 'ingredients' in self.validated_data:
-            ingredients_data = validated_data.pop('ingredients')
-            amount_set = RecipeIngredient.objects.filter(
-                recipe__id=instance.id)
-            amount_set.delete()
-            recipe_ingredient_create(ingredients_data, RecipeIngredient,
-                                     instance)
-        return super().update(instance, validated_data)
+    def update(self, recipe, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        RecipeIngredient.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(ingredients, recipe)
+        recipe.tags.set(tags)
+        return super().update(recipe, validated_data)
 
     def to_representation(self, instance):
         self.fields.pop('ingredients')
