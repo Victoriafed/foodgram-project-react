@@ -24,11 +24,15 @@ class UsersCreateSerializer(UserCreateSerializer):
             'password'
         )
 
-        def validate_password(self,password, username):
+        def validate(self, data):
+            user = User(**data)
+            password = data.get('password')
+            username = data.get('username')
             if password == username:
                 raise ValidationError(
-                    'Пароль не может совпадать с логином.'
+                    'Пароль не может совпадать с логином'
                 )
+            return data
 
 
 class UserSerializer(serializers.ModelSerializer):
