@@ -8,6 +8,7 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from users.models import Subscribe
 from djoser.serializers import UserCreateSerializer
+from django.core.validators import validate_email
 
 User = get_user_model()
 
@@ -28,9 +29,14 @@ class UsersCreateSerializer(UserCreateSerializer):
             user = User(**data)
             password = data.get('password')
             username = data.get('username')
+            email = data.get('username')
             if password == username:
                 raise ValidationError(
                     'Пароль не может совпадать с логином'
+                )
+            if not validate_email(email):
+                raise ValidationError(
+                    'Почта не подходит'
                 )
             return data
 
@@ -109,7 +115,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
 
-    def get_ingredients(self, obj):
+    @staticmethod
+    def get_ingredients(obj):
         ingredients = RecipeIngredient.objects.filter(recipe=obj)
         return RecipeIngredientSerializer(ingredients, many=True).data
 
