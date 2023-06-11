@@ -66,7 +66,7 @@ docker compose exec backend python manage.py importingredients ingredients.json
 * Все эти функции нужно реализовать в стандартной админ-панели Django.
 
 ## Документация
-http://practicumvictoria.ddns.net/api/redoc
+http://practicumvictoria.ddns.net/api/docs/
 
 
 ВМ 158.160.50.23
