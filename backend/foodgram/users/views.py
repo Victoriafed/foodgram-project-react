@@ -8,12 +8,16 @@ from rest_framework.response import Response
 
 from api.pagination import CustomPagination
 from api.serializers import SubscribeSerializer
+
 from .models import Subscribe
 
 User = get_user_model()
 
 
 class UserViewSet(DjoserViewSet):
+    """"
+        Пользователь с возможностью подписаться и отписатьсяЭ
+    """
     pagination_class = CustomPagination
 
     @action(
@@ -35,14 +39,14 @@ class UserViewSet(DjoserViewSet):
                     {'errors': 'Нельзя подписаться на самого себя'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            follow = Subscribe.objects.create(user=user, author=author)
+            subscribe = Subscribe.objects.create(user=user, author=author)
             serializer = SubscribeSerializer(
-                follow, context={'request': request}
+                subscribe, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if Subscribe.objects.filter(user=user, author=author).exists():
-            follow = get_object_or_404(Subscribe, user=user, author=author)
-            follow.delete()
+            subscribe = get_object_or_404(Subscribe, user=user, author=author)
+            subscribe.delete()
             return Response(
                 'Подписка успешно удалена',
                 status=status.HTTP_204_NO_CONTENT

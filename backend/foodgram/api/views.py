@@ -4,14 +4,14 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingСart, Tag)
-from users.models import Subscribe
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
+
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingСart, Tag)
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
@@ -22,12 +22,19 @@ from .serializers import (IngredientSerializer, RecipeModifySerializer,
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
+    """
+        View для ингредиентов
+    """
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filterset_class = IngredientFilter
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class TagViewSet(viewsets.ModelViewSet):
+    """
+        View для тегов
+    """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -35,6 +42,9 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """
+        View для рецептов
+    """
     queryset = Recipe.objects.all()
     permission_classes = (IsAdminAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
@@ -42,11 +52,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
+        """
+            Возвращает необходимый serializer
+        """
         if self.request.method in SAFE_METHODS:
             return RecipeSerializer
         return RecipeModifySerializer
 
     def get_queryset(self):
+        """
+            Возвращает список рецептов
+        """
         is_favorited = self.request.query_params.get('is_favorited')
         if is_favorited is not None and int(is_favorited) == 1:
             return Recipe.objects.filter(favorites__user=self.request.user)
@@ -62,12 +78,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
+        """
+            Метод для работы со списком покупок
+        """
         if request.method == 'POST':
             return self.add_to(ShoppingСart, request.user, pk)
         else:
             return self.delete_from(ShoppingСart, request.user, pk)
 
-    def add_to(self, model, user, pk):
+    @staticmethod
+    def add_to(model, user, pk):
+        """
+            Метод для добовления
+        """
         if model.objects.filter(user=user, recipe__id=pk).exists():
             return Response({'errors': 'Рецепт уже добавлен!'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -76,7 +99,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = RecipeSubscribeSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_from(self, model, user, pk):
+    @staticmethod
+    def delete_from(model, user, pk):
+        """
+            Метод для удаления
+        """
         obj = model.objects.filter(user=user, recipe__id=pk)
         if obj.exists():
             obj.delete()
@@ -93,6 +120,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk):
+        """
+            Метод для работы с избранным
+        """
         if request.method == 'POST':
             return self.add_to(Favorite, request.user, pk)
         else:
@@ -103,6 +133,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
+        """
+            Метод позвляющий загружать список покупок
+        """
         user = request.user
         if not user.shopping_cart.exists():
             return Response(status=HTTP_400_BAD_REQUEST)

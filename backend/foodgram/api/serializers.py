@@ -1,14 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.db.models import F
+from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import SerializerMethodField
-from rest_framework.relations import PrimaryKeyRelatedField
+
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscribe
-from djoser.serializers import UserCreateSerializer
-from django.core.validators import validate_email
 
 User = get_user_model()
 
@@ -24,21 +22,6 @@ class UsersCreateSerializer(UserCreateSerializer):
             'last_name',
             'password'
         )
-
-        def validate(self, data):
-            user = User(**data)
-            password = data.get('password')
-            username = data.get('username')
-            email = data.get('username')
-            if password == username:
-                raise ValidationError(
-                    'Пароль не может совпадать с логином'
-                )
-            if not validate_email(email):
-                raise ValidationError(
-                    'Почта не подходит'
-                )
-            return data
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -178,7 +161,6 @@ class RecipeModifySerializer(serializers.ModelSerializer):
                 defaults={'amount': amount}
             )
 
-
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
@@ -250,22 +232,12 @@ class SubscribeSerializer(UserSerializer):
             queryset = queryset[:int(limit)]
         return RecipeSubscribeSerializer(queryset, many=True).data
 
-"""
     def validate(self, data):
         author = self.instance
         user = self.context.get('request').user
-        if Subscribe.objects.filter(author=author, user=user).exists():
-            raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
-                code=status.HTTP_400_BAD_REQUEST
-            )
         if user == author:
             raise ValidationError(
                 detail='Вы не можете подписаться на самого себя!',
                 code=status.HTTP_400_BAD_REQUEST
             )
         return data
-"""
-
-
-
