@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.db.models import F
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscribe
 
 User = get_user_model()
