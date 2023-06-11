@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from recipes.models import Favorite, Ingredient, Recipe, Tag
+from recipes.models import Ingredient, Tag
 
 User = get_user_model()
 
@@ -25,7 +25,9 @@ class IngredientModelTest(TestCase):
         for field, expected_value in field_verboses.items():
             with self.subTest(field=field):
                 self.assertEqual(
-                    ingredient._meta.get_field(field).verbose_name, expected_value)
+                    ingredient._meta.get_field(field).verbose_name,
+                    expected_value
+                )
 
     def test_help_text(self):
         """help_text в полях совпадает с ожидаемым."""
@@ -37,7 +39,9 @@ class IngredientModelTest(TestCase):
         for field, expected_value in field_help_texts.items():
             with self.subTest(field=field):
                 self.assertEqual(
-                    ingredient._meta.get_field(field).help_text, expected_value)
+                    ingredient._meta.get_field(field).help_text,
+                    expected_value
+                )
 
 
 class TagModelTest(TestCase):
