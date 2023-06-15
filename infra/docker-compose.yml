@@ -1,48 +1,17 @@
 version: '3.3'
-
-volumes:
-  static_value:
-  media_value:
-  foodgram_database:
-
 services:
 
-  db:
-    image: postgres:latest
-    volumes:
-      - foodgram_database:/var/lib/postgresql/data/
-    env_file:
-      - ./.env
-
-  backend:
-    image: victoria33772/foodgram-backend:latest
-    restart: always
-    volumes:
-      - static_value:/app/static/
-      - media_value:/app/media/
-    depends_on:
-      - db
-    env_file:
-      - ./.env
-
   frontend:
-    image: victoria33772/foodgram-frontend:latest
     build:
-      context: ./frontend
+      context: ../frontend
       dockerfile: Dockerfile
     volumes:
-      - ./frontend/:/app/result_build/
-
+      - ../frontend/:/app/result_build/
   nginx:
     image: nginx:1.19.3
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./frontend/build:/usr/share/nginx/html/
-      - ./docs/:/usr/share/nginx/html/api/docs/
-      - static_value:/etc/nginx/html/static/
-      - media_value:/etc/nginx/html/media/
-    depends_on:
-      - frontend
-      - backend
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
