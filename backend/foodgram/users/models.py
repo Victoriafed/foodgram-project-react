@@ -13,7 +13,7 @@ class User(AbstractUser):
         verbose_name='Уникальный юзернейм',
         max_length=150,
         unique=True,
-        validators=RegexValidator(r'^[\w.@+-]+\z'),
+        validators=[RegexValidator(r'^[\w.@+-]+\z'), ]
     )
     first_name = models.CharField(
         verbose_name='Имя',
@@ -52,7 +52,7 @@ class Subscription(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='subscription',
+        related_name='subscription_author',
         verbose_name='Автор',
     )
 
