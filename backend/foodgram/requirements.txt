@@ -1,5 +1,5 @@
 asgiref==3.7.2
-Django==4.2.2
+Django==3.2.19
 flake8==6.0.0
 flake8-broken-line==1.0.0
 flake8-isort==6.0.0
