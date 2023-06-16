@@ -42,4 +42,20 @@ class User(AbstractUser):
         ordering = ['-id']
 
 
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscription',
+        verbose_name='Пользователь',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscription',
+        verbose_name='Автор',
+    )
 
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
