@@ -134,6 +134,10 @@ class IngredientInRecipe(models.Model):
         related_name='ingredient_in_recipe',
         verbose_name='Рецепты',
     )
+    amount = models.IntegerField(
+        verbose_name='Количество',
+        validators=(MinValueValidator(1),)
+    )
 
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
