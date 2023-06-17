@@ -9,5 +9,9 @@ class UserAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'author')
+
+
 admin.site.register(User, UserAdmin)
-admin.site.register(Subscription)
+admin.site.register(Subscription, SubscriptionAdmin)

@@ -36,9 +36,17 @@ class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
 
 
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'measurement_unit')
+
+
+class IngredientInRecipeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'recipe', 'ingredient')
+
+
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(ShoppingCart, ShoppingCartAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(IngredientInRecipe)
+admin.site.register(IngredientInRecipe, IngredientInRecipeAdmin)
