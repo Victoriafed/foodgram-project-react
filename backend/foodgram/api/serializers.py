@@ -1,0 +1,176 @@
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+
+from users.models import (
+    Favorite,
+    Ingredient,
+    IngredientInRecipe,
+    Recipe,
+    Tag,
+    ShoppingCart,
+    Subscription,
+    User
+)
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'password'
+        )
+
+
+class UserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'password',
+            'is_subscribed'
+        )
+
+    def get_is_subscribed(self, obj):
+        return Subscription.objects.filter(
+            user=self.context['request'].user,
+            author=obj).exists()
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = (
+            'id',
+            'name',
+            'color',
+            'slug'
+        )
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        field = (
+            'id',
+            'name',
+            'measurement_unit'
+        )
+
+
+class IngredientInRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IngredientInRecipe
+        field = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount'
+        )
+
+
+class RecipeSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True)
+    author = UserSerializer()
+    ingredients = IngredientInRecipeSerializer(many=True)
+    image = Base64ImageField()
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time'
+        )
+
+    def get_is_favorited(self, obj):
+        return Favorite.objects.filter(
+            recipe=obj,
+            user=self.context['request'].user).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        return ShoppingCart.objects.filter(
+            recipe=obj,
+            user=self.context['request'].user).exists()
+
+    def create(self, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(**validated_data)
+        for ingredient in ingredients:
+            IngredientInRecipe.obects.create(
+                recipe=recipe,
+                ingredient=ingredient['ingredient'],
+                amount=ingredient['amount']
+            )
+        recipe.tags.set(validated_data.pop('tags'))
+        return recipe
+
+    def update(self, recipe, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        if 'ingredients' in self.validated_data:
+            IngredientInRecipe.objects.filter(recipe=recipe).delete()
+            for ingredient in ingredients:
+                IngredientInRecipe.obects.create(
+                    recipe=recipe,
+                    ingredient=ingredient['ingredient'],
+                    amount=ingredient['amount']
+                )
+        if 'tags' in self.validated_data:
+            recipe.tags.set(validated_data.pop('tags'))
+        return super().update(recipe, validated_data)
+
+
+class ShortRecipeSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = ShortRecipeSerializer()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Subscription
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes'
+            'recipes_count'
+        )
+
+    def get_is_subscribed(self, obj):
+        pass
+
+    def get_recipes_count(self, obj):
+        return Recipe.objects.filter(author=obj.author.id).count()
