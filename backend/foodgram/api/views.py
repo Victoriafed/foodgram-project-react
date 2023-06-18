@@ -18,14 +18,14 @@ from recipes.models import (
 )
 
 from users.models import Subscription
-
 from .pagination import CustomPagination
 from .permissions import IsAdminAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import (
     IngredientSerializer,
     RecipeSerializer,
     TagSerializer,
-    ShortRecipeSerializer, SubscriptionSerializer
+    ShortRecipeSerializer,
+    SubscriptionSerializer
 )
 
 
@@ -93,7 +93,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         data = ShortRecipeSerializer(recipe)
         return Response(data, status=status.HTTP_201_CREATED)
 
-    @action()
+    @action(
+        detail=False,
+        permission_classes=[permissions.IsAuthenticated]
+    )
     def download_shopping_cart(self, request):
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
