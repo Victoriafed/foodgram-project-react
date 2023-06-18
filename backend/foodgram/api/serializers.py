@@ -1,16 +1,18 @@
+from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from users.models import (
-    Favorite,
+from users.models import Subscription
+from recipes.models import (
     Ingredient,
     IngredientInRecipe,
     Recipe,
-    Tag,
     ShoppingCart,
-    Subscription,
-    User
+    Favorite,
+    Tag
 )
+
+User = get_user_model()
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -172,5 +174,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         pass
 
-    def get_recipes_count(self, obj):
+    @staticmethod
+    def get_recipes_count(obj):
         return Recipe.objects.filter(author=obj.author.id).count()
