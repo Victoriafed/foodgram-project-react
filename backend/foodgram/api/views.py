@@ -1,14 +1,22 @@
 import io
 
+from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet as DjoserViewSet
-from recipes.models import Ingredient, Recipe, Tag
 from reportlab.pdfgen import canvas
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from recipes.models import Favorite, ShoppingCart, IngredientInRecipe
+from recipes.models import (
+    Tag,
+    Recipe,
+    Favorite,
+    ShoppingCart,
+    IngredientInRecipe,
+    Ingredient
+)
+
 from users.models import Subscription
 
 from .pagination import CustomPagination
@@ -19,6 +27,7 @@ from .serializers import (
     TagSerializer,
     ShortRecipeSerializer, SubscriptionSerializer
 )
+
 
 
 class TagViewSet(viewsets.ModelViewSet):
