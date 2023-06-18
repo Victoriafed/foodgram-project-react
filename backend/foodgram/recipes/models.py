@@ -28,6 +28,7 @@ class Ingredient(models.Model):
     name = models.SlugField(
         verbose_name='Название ингредиента',
         max_length=200,
+        db_index=True
     )
     measurement_unit = models.SlugField(
         verbose_name='Единица измерения',
