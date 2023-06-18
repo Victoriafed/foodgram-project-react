@@ -8,6 +8,8 @@ from reportlab.pdfgen import canvas
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from recipes.models import Favorite, ShoppingCart, IngredientInRecipe
+from users.models import Subscription
 
 from .pagination import CustomPagination
 from .permissions import IsAdminAuthorOrReadOnly, IsAdminOrReadOnly
@@ -17,9 +19,6 @@ from .serializers import (
     TagSerializer,
     ShortRecipeSerializer, SubscriptionSerializer
 )
-from recipes.models import Favorite, ShoppingCart, IngredientInRecipe
-
-from ..users.models import Subscription
 
 
 class TagViewSet(viewsets.ModelViewSet):
