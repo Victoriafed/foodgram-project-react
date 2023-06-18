@@ -1,10 +1,10 @@
 import io
 
-import canvas as canvas
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet as DjoserViewSet
 from recipes.models import Ingredient, Recipe, Tag
+from reportlab.pdfgen import canvas
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
