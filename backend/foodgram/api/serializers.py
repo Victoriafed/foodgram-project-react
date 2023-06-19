@@ -73,16 +73,12 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='ingredient.id')
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
-        fields = (
-            'id',
-            'name',
-            'measurement_unit',
-            'amount'
-        )
+        fields = ('id', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -119,26 +115,26 @@ class RecipeSerializer(serializers.ModelSerializer):
             user=self.context['request'].user).exists()
 
     def create(self, validated_data):
-        ingredients = validated_data.pop('IngredientInRecipe')
+        ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient in ingredients:
             IngredientInRecipe.obects.create(
                 recipe=recipe,
                 ingredient=ingredient['ingredient'],
-                amount=0
+                amount=ingredient.get("amount")
             )
         recipe.tags.set(validated_data.pop('tags'))
         return recipe
 
     def update(self, recipe, validated_data):
-        ingredients = validated_data.pop('IngredientInRecipe')
+        ingredients = validated_data.pop('ingredients')
         if 'ingredients' in self.validated_data:
             IngredientInRecipe.objects.filter(recipe=recipe).delete()
             for ingredient in ingredients:
                 IngredientInRecipe.obects.create(
                     recipe=recipe,
                     ingredient=ingredient['ingredient'],
-                    amount=0
+                    amount=ingredient.get("amount")
                 )
         if 'tags' in self.validated_data:
             recipe.tags.set(validated_data.pop('tags'))
