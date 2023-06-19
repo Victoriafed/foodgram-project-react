@@ -41,7 +41,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class IngredientInRecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'recipes', 'ingredients')
+    list_display = ('id', 'recipe', 'ingredient')
 
 
 admin.site.register(Tag, TagAdmin)
