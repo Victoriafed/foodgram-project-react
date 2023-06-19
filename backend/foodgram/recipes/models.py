@@ -68,11 +68,11 @@ class Recipe(models.Model):
         upload_to='recipes',
         verbose_name='Картинка',
     )
-    name = models.SlugField(
+    name = models.CharField(
         verbose_name='Название',
         max_length=200,
     )
-    text = models.SlugField(
+    text = models.TextField(
         verbose_name='Описание',
     )
     cooking_time = models.IntegerField(
