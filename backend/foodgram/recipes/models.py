@@ -33,7 +33,7 @@ class Ingredient(models.Model):
         max_length=200,
         db_index=True
     )
-    measurement_unit = models.SlugField(
+    measurement_unit = models.CharField(
         verbose_name='Единица измерения',
         max_length=200,
     )
