@@ -28,7 +28,7 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.SlugField(
+    name = models.CharField(
         verbose_name='Название ингредиента',
         max_length=200,
         db_index=True
