@@ -73,14 +73,14 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        source='ingredient', queryset=Ingredient.objects.all()
-    )
+    id = serializers.ReadOnlyField(source='ingredient.id')
 
     class Meta:
         model = IngredientInRecipe
         fields = (
             'id',
+            'name',
+            'measurement_unit',
             'amount'
         )
 
@@ -119,7 +119,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             user=self.context['request'].user).exists()
 
     def create(self, validated_data):
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('IngredientInRecipe')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient in ingredients:
             IngredientInRecipe.obects.create(
@@ -131,7 +131,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, recipe, validated_data):
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('IngredientInRecipe')
         if 'ingredients' in self.validated_data:
             IngredientInRecipe.objects.filter(recipe=recipe).delete()
             for ingredient in ingredients:
