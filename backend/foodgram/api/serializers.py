@@ -106,6 +106,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
+        #hhh
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
         return Favorite.objects.filter(
             recipe=obj,
             user=self.context['request'].user).exists()
@@ -202,13 +206,13 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return Recipe.objects.filter(author=obj.author.id).count()
 
     def validate(self, data):
-        author = get_object_or_404(User, self.context.get['pk'])
+        author = get_object_or_404(User, self.context.get['id'])
         user = self.context['request'].user
         if user == author:
             raise serializers.ValidationError(
                 'Нельзя подписаться на самого себя'
             )
-        if Subscription.objects.filter(user=user,author=author).exists():
+        if Subscription.objects.filter(user=user, author=author).exists():
             raise serializers.ValidationError(
                 'Вы уже подписаны на этого автора'
             )
