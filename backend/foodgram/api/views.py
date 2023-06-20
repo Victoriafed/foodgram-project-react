@@ -1,6 +1,7 @@
 import datetime
 import io
 
+from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -29,6 +30,8 @@ from .serializers import (
     ShortRecipeSerializer,
     SubscriptionSerializer
 )
+
+User = get_user_model()
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -132,14 +135,37 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class UserViewSet(DjoserViewSet):
     pagination_class = CustomPagination
 
+    #HHHHH
+    @action(
+        detail=True,
+        permission_classes=[permissions.IsAuthenticated],
+        methods=['POST', 'DELETE']
+    )
+    def subscribe(self, request, id):
+        user = request.user
+        author = get_object_or_404(User, id=id)
+        if self.request.method == 'POST':
+            subscribe = Subscription.objects.create(user=user, author=author)
+            serializer = SubscriptionSerializer(
+                subscribe, context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if Subscription.objects.filter(user=user, author=author).exists():
+            subscribe = get_object_or_404(Subscription, user=user, author=author)
+            subscribe.delete()
 
-class SubscriptionViewSet(viewsets.ModelViewSet):
-    serializer_class = SubscriptionSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        queryset = Subscription.objects.filter(user=self.request.user)
-        return queryset
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    @action(
+        detail=False,
+        permission_classes=[permissions.IsAuthenticated],
+        methods=['GET']
+    )
+    def subscriptions(self, request):
+        user = request.user
+        queryset = Subscription.objects.filter(user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscriptionSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)

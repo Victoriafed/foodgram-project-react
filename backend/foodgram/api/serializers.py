@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -187,8 +188,23 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        pass
+        return Subscription.objects.filter(
+            user=obj.user,author=obj.author
+        ).exists()
 
     @staticmethod
     def get_recipes_count(obj):
         return Recipe.objects.filter(author=obj.author.id).count()
+
+    def validate(self, data):
+        author = get_object_or_404(User, self.context.get['pk'])
+        user = self.context['request'].user
+        if user == author:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя'
+            )
+        if Subscription.objects.filter(user=user,author=author).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны на этого автора'
+            )
+        return data
