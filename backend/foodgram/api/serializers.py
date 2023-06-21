@@ -155,7 +155,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if 'ingredients' in self.validated_data:
             IngredientInRecipe.objects.filter(recipe=recipe).delete()
             for ingredient in ingredients:
-                IngredientInRecipe.obects.create(
+                IngredientInRecipe.objects.create(
                     recipe=recipe,
                     ingredient=ingredient['ingredients'],
                     amount=ingredient.get('amount')
