@@ -118,7 +118,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
-
     def get_is_favorited(self, obj):
         #hhh
         user = self.context.get('request').user
@@ -139,15 +138,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        author = self.context.get('request').user
         ingredients = validated_data.pop('ingredients')
-        image = validated_data.pop('image')
-        recipe = Recipe.objects.create(
-            author=author,
-            is_favorited=False,
-            is_in_shopping_cart=False,
-            image=image,
-            **validated_data)
+        recipe = Recipe.objects.create(**validated_data)
         for ingredient in ingredients:
             IngredientInRecipe.obects.create(
                 recipe=recipe,
