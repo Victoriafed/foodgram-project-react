@@ -144,7 +144,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             IngredientInRecipe.obects.create(
                 recipe=recipe,
                 ingredient=ingredient['ingredient'],
-                amount=ingredient.get("amount")
+                amount=ingredient.get('amount')
             )
         recipe.tags.set(validated_data.pop('tags'))
         return recipe
@@ -230,3 +230,4 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 'Вы уже подписаны на этого автора'
             )
         return data
+
