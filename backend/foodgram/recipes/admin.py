@@ -25,11 +25,11 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipes')
+    list_display = ('user', 'recipe')
 
 
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipes')
+    list_display = ('user', 'recipe')
 
 
 class IngredientAdmin(admin.ModelAdmin):
