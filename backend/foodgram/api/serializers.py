@@ -134,10 +134,11 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
         return ShoppingCart.objects.filter(
             recipe=obj,
-            user=user.exists()
-        )
+            user=user).exists()
+
 
     def create(self, validated_data):
+        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient in ingredients:
@@ -146,7 +147,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 ingredient=ingredient['ingredient'],
                 amount=ingredient.get('amount')
             )
-        recipe.tags.set(validated_data.pop('tags'))
+        recipe.tags.set(tags)
         return recipe
 
     def update(self, recipe, validated_data):
@@ -211,7 +212,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         return Subscription.objects.filter(
-            user=obj.user,author=obj.author
+            user=obj.user, author=obj.author
         ).exists()
 
     @staticmethod
