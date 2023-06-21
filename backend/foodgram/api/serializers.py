@@ -144,7 +144,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             IngredientInRecipe.objects.create(
                 recipe=recipe,
-                ingredient=ingredient['ingredient'],
+                ingredient=ingredient['ingredients'],
                 amount=ingredient.get('amount')
             )
         recipe.tags.set(tags)
@@ -157,8 +157,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             for ingredient in ingredients:
                 IngredientInRecipe.obects.create(
                     recipe=recipe,
-                    ingredient=ingredient['ingredient'],
-                    amount=ingredient.get("amount")
+                    ingredient=ingredient['ingredients'],
+                    amount=ingredient.get('amount')
                 )
         if 'tags' in self.validated_data:
             recipe.tags.set(validated_data.pop('tags'))
