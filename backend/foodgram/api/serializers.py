@@ -142,7 +142,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient in ingredients:
-            IngredientInRecipe.obects.create(
+            IngredientInRecipe.objects.create(
                 recipe=recipe,
                 ingredient=ingredient['ingredient'],
                 amount=ingredient.get('amount')
