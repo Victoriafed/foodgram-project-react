@@ -50,22 +50,22 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipes',
+        related_name='recipe',
         verbose_name='Автор',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientInRecipe',
-        related_name='recipes',
+        related_name='recipe',
         verbose_name='Ингредиенты',
     )
     tags = models.ManyToManyField(
         Tag,
-        related_name='recipes',
+        related_name='recipe',
         verbose_name='Теги',
     )
     image = models.ImageField(
-        upload_to='recipes',
+        upload_to='recipe',
         verbose_name='Картинка',
     )
     name = models.CharField(
@@ -158,4 +158,4 @@ class IngredientInRecipe(models.Model):
                 fields=('recipe', 'ingredient'),
                 name='Unique_ingredient_in_recipe')
         ]
-        db_table = 'recipes_recipe_ingredient'
+        db_table = 'recipe_recipe_ingredient'
