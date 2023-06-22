@@ -209,6 +209,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         fields = (
             'user',
+            'is_subscribed',
             'recipes',
             'recipes_count'
         )
