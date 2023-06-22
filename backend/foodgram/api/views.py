@@ -66,7 +66,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, recipe):
-        request = self.context.get("request")
+        request = self.context.get('request')
         if Favorite.objects.filter(recipe=recipe, user=request.user).exists():
             if request.method == 'DELETE':
                 favorite = get_object_or_404(Favorite, user=request.user,
@@ -91,7 +91,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 return Response(
                     {'errors': 'Рецепт уже находится в избранном.'},
                     status=status.HTTP_400_BAD_REQUEST)
-            shoppingcart = get_object_or_404(Favorite, user=request.user,
+            shoppingcart = get_object_or_404(ShoppingCart, user=request.user,
                                              recipe=recipe)
             shoppingcart.delete()
         ShoppingCart.objects.get_or_create(user=request.user, recipe=recipe)
