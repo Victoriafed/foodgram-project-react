@@ -83,19 +83,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['POST', 'DELETE'],
         permission_classes=[permissions.IsAuthenticated]
     )
-    def shopping_cart(self, recipe):
+    def shopping_cart(self, pk):
         request = self.context.get("request")
-        if ShoppingCart.objects.filter(recipe=recipe,
+        if ShoppingCart.objects.filter(recipe=pk,
                                        user=request.user).exists():
             if not request.method == 'DELETE':
                 return Response(
                     {'errors': 'Рецепт уже находится в избранном.'},
                     status=status.HTTP_400_BAD_REQUEST)
             shoppingcart = get_object_or_404(Favorite, user=request.user,
-                                             recipe=recipe)
+                                             recipe=pk)
             shoppingcart.delete()
-        ShoppingCart.objects.get_or_create(user=request.user, recipe=recipe)
-        data = ShortRecipeSerializer(recipe)
+        ShoppingCart.objects.get_or_create(user=request.user, recipe=pk)
+        data = ShortRecipeSerializer(pk)
         return Response(data, status=status.HTTP_201_CREATED)
 
     @action(
