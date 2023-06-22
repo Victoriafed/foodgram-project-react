@@ -83,9 +83,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['POST', 'DELETE'],
         permission_classes=[permissions.IsAuthenticated]
     )
-    def shopping_cart(self, pk):
-        request = self.context.get("request")
-        recipe=get_object_or_404(Recipe, id=pk)
+    def shopping_cart(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
         if ShoppingCart.objects.filter(recipe=recipe,
                                        user=request.user).exists():
             if not request.method == 'DELETE':
