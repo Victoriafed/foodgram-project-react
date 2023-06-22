@@ -98,7 +98,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True)
+    ingredients = IngredientInRecipeSerializer(many=True, source='recipe_ingredient')
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
