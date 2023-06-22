@@ -139,12 +139,15 @@ class RecipeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
+        recipe = Recipe.objects.create(
+            is_favorited=False,
+            is_in_shopping_cart=False,
+            **validated_data)
         for ingredient in ingredients:
             IngredientInRecipe.objects.create(
                 recipe=recipe,
-                ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount')
+                ingredient=ingredient,
+                amount=ingredient['amount']
             )
         recipe.tags.set(tags)
         return recipe
@@ -165,7 +168,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     # fdhhfdh
     def to_representation(self, instance):
-        self.fields.pop('ingredients')
+        serializer = RecipeSerializer(
+            instance,
+            context={'request': self.context.get('request')}
+        )
+
+        return serializer.data
+        """self.fields.pop('ingredients')
         self.fields.pop('tags')
         representation = super().to_representation(instance)
         representation['ingredients'] = IngredientInRecipeSerializer(
@@ -174,7 +183,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         representation['tags'] = TagSerializer(
             instance.tags, many=True
         ).data
-        return representation
+        return representation"""
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
