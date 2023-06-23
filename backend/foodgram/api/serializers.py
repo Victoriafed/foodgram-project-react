@@ -319,8 +319,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes_count'
         )
 
-    def get_author(self):
-        author = get_object_or_404(User, self.context.get['id'])
+    def get_author(self, obj):
+        author = get_object_or_404(User, obj.author.id)
         serializer = UserSerializer(user=author)
         return serializer.data
 
