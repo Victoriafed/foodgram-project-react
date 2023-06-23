@@ -93,7 +93,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
         model = IngredientInRecipe
         fields = ('id', 'amount')
 
-class RecipeReadSerializer(serializers.ModelSerializer):
+'''class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     tags = TagSerializer(queryset=Tag.objects.all(),
                          many=True)
@@ -129,10 +129,10 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             return False
         return ShoppingCart.objects.filter(
             recipe=obj,
-            user=user).exists()
+            user=user).exists()'''
 
 
-"""class RecipeSerializer(serializers.ModelSerializer):
+class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(queryset=Tag.objects.all(),
         many=True,)
     author = UserSerializer(read_only=True)
@@ -219,7 +219,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         ).data
         representation['tags'] = TagSerializer(
             instance.tags, many=True
-        ).data"""
+        ).data
         return representation
 
 
