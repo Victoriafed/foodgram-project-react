@@ -95,7 +95,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
     image = Base64ImageField()
@@ -157,16 +157,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, recipe, validated_data):
-        if "ingredients" in self.initial_data:
-            ingredients = validated_data.pop("ingredients")
-            recipe.ingredients.clear()
-            self.create_ingredients(ingredients, recipe)
-        if "tags" in self.initial_data:
-            tags_data = validated_data.pop("tags")
-            recipe.tags.set(tags_data)
-        return super().update(recipe, validated_data)
-
-   ''' def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
         if 'ingredients' in self.validated_data:
             IngredientInRecipe.objects.filter(recipe=recipe).delete()
@@ -178,7 +168,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
         if 'tags' in self.validated_data:
             recipe.tags.set(validated_data.pop('tags'))
-        return super().update(recipe, validated_data)'''
+        return super().update(recipe, validated_data)
 
     # fdhhfdh
     def to_representation(self, instance):
