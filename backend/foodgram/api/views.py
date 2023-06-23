@@ -9,6 +9,7 @@ from djoser.views import UserViewSet as DjoserViewSet
 from reportlab.pdfgen import canvas
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from recipes.models import (
     Tag,
@@ -47,8 +48,12 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    serializer_class = RecipeReadSerializer
     permission_classes = (IsAdminAuthorOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return RecipeReadSerializer
+        return RecipeSerializer
 
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
