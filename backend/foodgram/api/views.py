@@ -81,7 +81,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         Favorite.objects.get_or_create(user=request.user, recipe=recipe)
         data = ShortRecipeSerializer(recipe)
-        return Response(data, status=status.HTTP_201_CREATED)
+        return Response(data.data, status=status.HTTP_201_CREATED)
 
     @action(
         detail=True,
