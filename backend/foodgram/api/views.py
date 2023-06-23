@@ -28,7 +28,7 @@ from .serializers import (
     RecipeSerializer,
     TagSerializer,
     ShortRecipeSerializer,
-    SubscriptionSerializer
+    SubscriptionSerializer, RecipeReadSerializer
 )
 
 User = get_user_model()
@@ -47,7 +47,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    serializer_class = RecipeSerializer
+    serializer_class = RecipeReadSerializer
     permission_classes = (IsAdminAuthorOrReadOnly,)
 
     def get_queryset(self):
