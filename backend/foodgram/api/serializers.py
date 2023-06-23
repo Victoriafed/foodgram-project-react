@@ -107,9 +107,16 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            '__all__',
+            'id',
+            'tags',
+            'author',
+            'ingredients',
             'is_favorited',
-            'is_in_shopping_cart'
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
         )
 
     @staticmethod
@@ -132,6 +139,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         return ShoppingCart.objects.filter(
             recipe=obj,
             user=user).exists()
+
 
 class RecipeSerializer(serializers.ModelSerializer):
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(),
