@@ -318,7 +318,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count'
         )
-        depth = 1
 
     #hhh
     def get_recipes(self, obj):
