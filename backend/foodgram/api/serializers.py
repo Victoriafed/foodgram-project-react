@@ -307,7 +307,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    author = UserSerializer()
+    author = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -319,10 +319,10 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes_count'
         )
 
-    def get_is_subscribed(self, obj):
-        return Subscription.objects.filter(
-            user=obj.user, author=obj.author
-        ).exists()
+    def get_author(self):
+        author = get_object_or_404(User, self.context.get['id'])
+        serializer = UserSerializer(user=author)
+        return serializer.data
 
     #hhh
     def get_recipes(self, obj):
