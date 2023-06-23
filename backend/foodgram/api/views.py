@@ -84,7 +84,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-        recipe = get_object_or_404(Recipe, id=pk)
+        if request.method == 'POST':
+            return self.add_to(ShoppingCart, request.user, pk)
+        return self.delete_from(ShoppingCart, request.user, pk)
+
+        '''recipe = get_object_or_404(Recipe, id=pk)
         if ShoppingCart.objects.filter(recipe=recipe,
                                        user=request.user).exists():
             if not request.method == 'DELETE':
@@ -96,7 +100,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             shoppingcart.delete()
         ShoppingCart.objects.get_or_create(user=request.user, recipe=recipe)
         data = ShortRecipeSerializer(recipe)
-        return Response(data, status=status.HTTP_201_CREATED)
+        return Response(data, status=status.HTTP_201_CREATED)'''
 
     @action(
         detail=False,
