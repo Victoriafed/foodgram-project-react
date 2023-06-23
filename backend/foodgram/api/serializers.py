@@ -314,15 +314,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = (
-            'author',
+            'author'
             'recipes',
             'recipes_count'
         )
-
-    def get_author(self, obj):
-        author = get_object_or_404(User, obj.author.id)
-        serializer = UserSerializer(user=author)
-        return serializer.data
+        depth = 1
 
     #hhh
     def get_recipes(self, obj):
