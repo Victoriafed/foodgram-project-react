@@ -314,7 +314,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = (
-            'author'
+            'author',
             'recipes',
             'recipes_count'
         )
