@@ -118,6 +118,18 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return obj.favorites.filter(user=user).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return user.shopping_cart.filter(recipe=obj).exists()
+
+    '''def get_is_favorited(self, obj):
         #hhh
         user = self.context.get('request').user
         if user.is_anonymous:
@@ -133,29 +145,9 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
         return ShoppingCart.objects.filter(
             recipe=obj,
-            user=user).exists()
-
-    @staticmethod
-    def add_ingredients(ingredients, recipe):
-        for ingredient in ingredients:
-            ingredient_id = ingredient['id']
-            amount = ingredient['amount']
-            if IngredientInRecipe.objects.filter(
-                    recipe=recipe, ingredient=ingredient_id).exists():
-                amount += F('amount')
-            IngredientInRecipe.objects.update_or_create(
-                recipe=recipe, ingredient=ingredient_id,
-                defaults={'amount': amount}
-            )
+            user=user).exists()'''
 
     def create(self, validated_data):
-        ingredients_data = validated_data.pop('ingredients')
-        tags_data = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags_data)
-        self.add_ingredients(ingredients_data, recipe)
-        return recipe
-    '''def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(
@@ -169,17 +161,9 @@ class RecipeSerializer(serializers.ModelSerializer):
                 amount=ingredient['amount']
             )
         recipe.tags.set(tags)
-        return recipe'''
+        return recipe
 
     def update(self, recipe, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        IngredientInRecipe.objects.filter(recipe=recipe).delete()
-        self.add_ingredients(ingredients, recipe)
-        recipe.tags.set(tags)
-        return super().update(recipe, validated_data)
-
-    '''def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
         if 'ingredients' in self.validated_data:
             IngredientInRecipe.objects.filter(recipe=recipe).delete()
@@ -191,7 +175,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
         if 'tags' in self.validated_data:
             recipe.tags.set(validated_data.pop('tags'))
-        return super().update(recipe, validated_data)'''
+        return super().update(recipe, validated_data)
 
     # fdhhfdh
     def to_representation(self, instance):
