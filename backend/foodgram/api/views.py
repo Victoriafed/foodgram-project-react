@@ -71,7 +71,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk):
-        recipe = get_object_or_404(Recipe, recipe_id=pk)
+        recipe = get_object_or_404(Recipe, id=pk)
         if Favorite.objects.filter(recipe=recipe, user=request.user).exists():
             if request.method == 'DELETE':
                 favorite = get_object_or_404(Favorite, user=request.user,
