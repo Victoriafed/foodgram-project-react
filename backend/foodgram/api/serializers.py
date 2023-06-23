@@ -167,7 +167,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     # fdhhfdh
     def to_representation(self, instance):
-        self.fields.pop('ingredients')
+        request = self.context.get('request')
+        context = {'request': request}
+        return RecipeSerializer(instance, context=context).data
+        '''self.fields.pop('ingredients')
         self.fields.pop('tags')
         representation = super().to_representation(instance)
         representation['ingredients'] = IngredientInRecipeSerializer(
@@ -176,7 +179,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         representation['tags'] = TagSerializer(
             instance.tags, many=True
         ).data
-        return representation
+        return representation'''
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
