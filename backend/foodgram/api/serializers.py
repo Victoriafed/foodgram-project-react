@@ -318,7 +318,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count'
         )
-        depth = 0
 
     #hhh
     def get_recipes(self, obj):
@@ -342,3 +341,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 'Вы уже подписаны на этого автора'
             )
         return data
+
+    def to_representation(self, instance):
+        return {
+            'email': instance.author.id,
+            'recipes': instance.recipes,
+            'recipes_count': instance.recipes_count,
+        }
+
