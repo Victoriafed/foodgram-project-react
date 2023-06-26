@@ -329,8 +329,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes_count'
         )
 
+    # hhh
     def get_is_subscribed(self, obj):
-        return Subscription.filter(
+        return Subscription.objects.filter(
             user=obj.user,
             author=obj.author
         ).exists()
