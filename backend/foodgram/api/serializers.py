@@ -307,14 +307,12 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
         fields = (
-            'author',
             'recipes' 
             'recipes_count'
         )
