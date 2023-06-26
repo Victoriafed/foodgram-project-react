@@ -326,8 +326,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
             'recipes',
-            'recipes_count')
-
+            'recipes_count',
+        )
 
     #hhh
     def get_recipes(self, obj):
