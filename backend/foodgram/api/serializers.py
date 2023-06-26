@@ -314,7 +314,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = (
-            'author',
+            'id',
             'recipes',
             'recipes_count'
         )
@@ -341,11 +341,3 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 'Вы уже подписаны на этого автора'
             )
         return data
-
-    def to_representation(self, instance):
-        return {
-            'email': instance.author.id,
-            'recipes': instance.recipes,
-            'recipes_count': instance.recipes_count,
-        }
-
