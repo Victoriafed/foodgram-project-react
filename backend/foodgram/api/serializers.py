@@ -315,7 +315,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         fields = (
             'author',
-            'recipes' 
+            'recipes',
             'recipes_count'
         )
 
