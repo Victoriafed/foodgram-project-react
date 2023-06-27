@@ -112,7 +112,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        ingredients = IngredientInRecipe.objects.filter(
+        '''ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',
@@ -127,9 +127,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         n = '\n'
         text = (
             f'{n.join(n.join(x) for x in list_ingredients)}'
-        )
+        )'''
         file = 'shopping_list'
-        response = HttpResponse(text,
+        response = HttpResponse('hhhhhhhhhhhhhhh',
                                 'Content-Type: application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
         return response
