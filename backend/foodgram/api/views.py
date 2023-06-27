@@ -7,6 +7,8 @@ from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet as DjoserViewSet
 from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -111,13 +113,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         buffer = io.BytesIO()
-        c = canvas.Canvas(buffer)
-        c.drawString(100, 100, "Список покупок")
-        c.showPage()
-        c.save()
-        buffer.seek(0)
-        return FileResponse(buffer, as_attachment=True, filename="hello.pdf")
-        '''buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
@@ -136,7 +131,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
             f'{n.join(n.join(x) for x in list_ingredients)}'
         )
-        p.drawString(100, 750, 'Список покупок')
+        pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
+        p.drawString(100, 750, 'Shopping list суууууууууууу')
         p.showPage()
         p.save()
         buffer.seek(0)
@@ -144,7 +140,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             buffer, as_attachment=True,
             filename="shopping_cart.pdf",
             content_type='application/pdf'
-        )'''
+        )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
