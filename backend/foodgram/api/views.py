@@ -118,7 +118,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
-        p.setFont("Times-Roman", 55)
+        p.setFont("Times-Roman", 44)
         p.drawString(100, 750, "Cписок покупок")
         p.showPage()
         p.save()
