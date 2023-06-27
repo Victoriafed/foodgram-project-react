@@ -116,9 +116,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
+        pdfmetrics.registerFont(TTFont('arial', 'arial.ttf'))
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
-        p.setFont("Times-Roman", 44)
+#        p.setFont("Times-Roman", 44)
         p.drawString(100, 750, "Cписок покупок")
         p.showPage()
         p.save()
