@@ -53,11 +53,13 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminAuthorOrReadOnly,)
     pagination_class = CustomPagination
+    serializer_class = RecipeSerializer
 
-    def get_serializer_class(self):
+
+    '''def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return RecipeReadSerializer
-        return RecipeSerializer
+        return RecipeSerializer'''
 
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
