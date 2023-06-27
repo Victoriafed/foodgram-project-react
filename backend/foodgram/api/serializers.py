@@ -98,6 +98,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
                   'measurement_unit',
                   'amount')
 
+
 class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
@@ -207,12 +208,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Subscription
+    class Meta(UserSerializer.Meta):
         fields = (
-            UserSerializer.Meta.fields +
-            ('recipes',
-            'recipes_count')
+                UserSerializer.Meta.fields +
+                ('recipes',
+                 'recipes_count')
         )
 
     def get_recipes(self, obj):
