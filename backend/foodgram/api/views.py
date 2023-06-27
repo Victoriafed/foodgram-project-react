@@ -134,7 +134,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         buffer.seek(0)
         return FileResponse(
             buffer, as_attachment=True,
-            filename="shopping_cart.pdf"
+            filename="shopping_cart.pdf",
+            content_type='application/pdf'
         )
 
     def perform_create(self, serializer):
