@@ -207,13 +207,19 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 class SubscriptionSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
-
+    is_subscribed = serializers.SerializerMethodField()
     class Meta(UserSerializer.Meta):
         fields = (
                 UserSerializer.Meta.fields +
                 ('recipes',
                  'recipes_count')
         )
+
+    def get_is_subscribed(self, obj):
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return Subscription.objects.filter(user=user, author=obj).exists()
 
     def get_recipes(self, obj):
         queryset = Recipe.objects.filter(author=obj.author.id)
