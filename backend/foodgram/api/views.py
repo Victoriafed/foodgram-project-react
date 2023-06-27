@@ -128,7 +128,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
             f'{n.join(n.join(x) for x in list_ingredients)}'
         )
-        p.drawString(300, 300, f'Список покупок \n')
+        p.drawString(100, 750, 'Список покупок')
         p.showPage()
         p.save()
         buffer.seek(0)
