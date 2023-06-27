@@ -84,7 +84,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if Favorite.objects.filter(recipe=recipe, user=request.user).exists():
             return Response({'errors': 'Рецепт уже находится в избранном.'},
                             status=status.HTTP_400_BAD_REQUEST)
-        Favorite.objects.get_or_create(user=request.user, recipe=recipe)
+        Favorite.objects.create(user=request.user, recipe=recipe)
         data = ShortRecipeSerializer(recipe)
         return Response(data.data, status=status.HTTP_201_CREATED)
 
@@ -102,12 +102,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=HTTP_204_NO_CONTENT)
         if ShoppingCart.objects.filter(recipe=recipe,
                                        user=request.user).exists():
-            if not request.method == 'DELETE':
-                return Response(
-                    {'errors': 'Рецепт уже находится в списке покупок.'},
-                    status=status.HTTP_400_BAD_REQUEST)
-
-        ShoppingCart.objects.get_or_create(user=request.user, recipe=recipe)
+            return Response(
+                {'errors': 'Рецепт уже находится в списке покупок.'},
+                status=status.HTTP_400_BAD_REQUEST)
+        ShoppingCart.objects.create(user=request.user, recipe=recipe)
         data = ShortRecipeSerializer(recipe)
         return Response(data.data, status=status.HTTP_201_CREATED)
 
@@ -151,16 +149,18 @@ class UserViewSet(DjoserViewSet):
     def subscribe(self, request, id):
         user = request.user
         author = get_object_or_404(User, id=id)
-        if self.request.method == 'POST':
-            subscribe = Subscription.objects.create(user=user, author=author)
-            serializer = SubscriptionSerializer(
-                subscribe, context={'request': request}
-            )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if Subscription.objects.filter(user=user, author=author).exists():
-            subscribe = get_object_or_404(Subscription, user=user,
-                                          author=author)
+        if request.method == 'DELETE':
+            subscribe = get_object_or_404(Subscription, user=user, author=author)
             subscribe.delete()
+            return Response(status=HTTP_204_NO_CONTENT)
+        if Subscription.objects.filter(user=user, author=author).exists():
+            return Response(
+                {'errors': 'Вы уже подписаны на этого пользователя.'},
+                status=status.HTTP_400_BAD_REQUEST)
+        subscribe = Subscription.objects.create(user=user, author=author)
+        data = SubscriptionSerializer(subscribe)
+        return Response(data.data, status=status.HTTP_201_CREATED)
+
 
     @action(
         detail=False,
