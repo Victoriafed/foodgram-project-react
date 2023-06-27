@@ -85,18 +85,12 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(
-        source='ingredient.measurement_unit'
-    )
     amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
-        fields = ('id',
-                  'name',
-                  'measurement_unit',
-                  'amount')
+        fields = ('id', 'amount')
+
 
 class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
@@ -188,6 +182,19 @@ class RecipeSerializer(serializers.ModelSerializer):
         if 'tags' in self.validated_data:
             recipe.tags.set(validated_data.pop('tags'))
         return super().update(recipe, validated_data)
+
+        # fdhhfdh
+    def to_representation(self, instance):
+        self.fields.pop('ingredients')
+        self.fields.pop('tags')
+        representation = super().to_representation(instance)
+        representation['ingredients'] = IngredientInRecipeSerializer(
+            IngredientInRecipe.objects.filter(recipe=instance), many=True
+        ).data
+        representation['tags'] = TagSerializer(
+            instance.tags, many=True
+        ).data
+        return representation
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
