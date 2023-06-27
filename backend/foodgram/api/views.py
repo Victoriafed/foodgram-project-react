@@ -122,9 +122,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 #                f'({ingredient.measurement_unit})'
 #                f' - {ingredient["amount"]}'
 #        )
+        k=''
         text = (
             f'Список покупок \n'
-            f'{''.join(f"{key}:{value}" for key, value in ingredients.items())}'
+            f'{k.join(f"{key}:{value}" for key, value in ingredients.items())}'
         )
         p.drawString(10, 10, text)
         p.showPage()
