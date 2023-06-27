@@ -112,7 +112,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        buffer = io.BytesIO()
+        ingredients = IngredientInRecipe.objects.filter(
+            recipe__shopping__user=request.user
+        ).values_list(
+            'ingredient__name', 'ingredient__measurement_unit', 'amount'
+        )
+        return FileResponse(
+            render_pdf(ingredients),
+            as_attachment=True,
+            filename='grocery_list.pdf', )
+        '''buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
@@ -140,7 +149,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             buffer, as_attachment=True,
             filename="shopping_cart.pdf",
             content_type='application/pdf'
-        )
+        )'''
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
