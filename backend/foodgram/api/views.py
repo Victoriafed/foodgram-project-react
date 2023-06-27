@@ -121,12 +121,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         list_ingredients.append(
             '{ingredient["ingredient__name"]} '
             '{ingredient["ingredient__measurement_unit"]} '
-            '- {ingredient["ingredient__measurement_unit"]}.'
+            '- {ingredient["amount"]}.'
              for ingredient in ingredients)
         n = '\n'
         text = (
             f'Список покупок \n'
-            f'{n.join(list_ingredients)}'
+            f'{n.join(*list_ingredients.values())}'
         )
         p.drawString(10, 10, text)
         p.showPage()
