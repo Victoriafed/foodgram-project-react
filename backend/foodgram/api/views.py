@@ -124,8 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 #        )
         text = (
             f'Список покупок \n'
-            f'{''.join(f"{key}: {value}" for key, value in ingredients.items())}'
-
+            f'{''.join(f"{key}:{value}" for key, value in ingredients.items())}'
         )
         p.drawString(10, 10, text)
         p.showPage()
