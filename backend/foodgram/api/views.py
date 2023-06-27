@@ -125,10 +125,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
              for ingredient in ingredients)
         n = '\n'
         text = (
-            f'Список покупок \n'
+
             f'{n.join(n.join(x) for x in list_ingredients)}'
         )
-        p.drawString(10, 10, text)
+        p.drawString(300, 300, f'Список покупок \n')
         p.showPage()
         p.save()
         buffer.seek(0)
