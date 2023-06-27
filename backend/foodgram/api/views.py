@@ -6,6 +6,7 @@ from django.db.models import Sum
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet as DjoserViewSet
+from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -109,7 +110,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        buffer = io.BytesIO()
+        c = canvas.Canvas('www.pdf', pagesize=letter)
+        c.drawString(100, 750, 'Список покупок')
+        c.showPage()
+        c.save()
+        return FileResponse(
+            c,
+            content_type='application/pdf'
+        )
+        '''buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
@@ -136,7 +145,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             buffer, as_attachment=True,
             filename="shopping_cart.pdf",
             content_type='application/pdf'
-        )
+        )'''
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
