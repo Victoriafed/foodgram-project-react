@@ -112,46 +112,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        buffer = io.BytesIO()
-        p = canvas.Canvas(buffer)
-        p.drawString(100, 100, "Hello world.")
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        return FileResponse(buffer, as_attachment=True, filename="hello.pdf")
-
-
-
-        '''buffer = io.BytesIO()
-        p = canvas.Canvas(buffer)
+        ingredient_list = "Cписок покупок:"
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit'
+            'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        list_ingredients = []
-        list_ingredients.append([
-            f' {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement_unit"]})'
-            f' - {ingredient["amount"]}'
-            for ingredient in ingredients
-        ])
-        n = '.'
-        x=0
-        text = (
-            f'Список покупок \n'
-            f'{x} for x in range (1, ,1)'
-            f'{n.join(list_ingredients)}'
-        )
-        p.drawString(10, 10, text)
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        return FileResponse(
-            buffer, as_attachment=True,
-            filename="shopping_cart.pdf"
-        )'''
+        for num, i in enumerate(ingredients):
+            ingredient_list += (
+                f"\n{i['ingredient__name']} - "
+                f"{i['amount']} {i['ingredient__measurement_unit']}"
+            )
+            if num < ingredients.count() - 1:
+                ingredient_list += ', '
+        file = 'shopping_list'
+        response = HttpResponse(ingredient_list,
+                                'Content-Type: application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
+        return response
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
