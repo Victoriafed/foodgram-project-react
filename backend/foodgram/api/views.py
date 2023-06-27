@@ -118,38 +118,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        reportlab.rl_config.TTFSearchPath.append(
-            str(settings.BASE_DIR) + '/app/')
-        pdfmetrics.registerFont(TTFont('arial', 'arial.ttf'))
-        buffer = io.BytesIO()
-        p = canvas.Canvas(buffer)
-#        p.setFont("Times-Roman", 44)
-        p.drawString(100, 750, "Cписок покупок")
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        return FileResponse(buffer, as_attachment=True, filename="hello.pdf")
-
-
-
-        '''ingredient_list = "Cписок покупок:"
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
-            'ingredient__name', 'ingredient__measurement_unit'
+            'ingredient__name',
+            'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        for num, i in enumerate(ingredients):
-            ingredient_list += (
-                f"\n{i['ingredient__name']} - "
-                f"{i['amount']} {i['ingredient__measurement_unit']}"
-            )
-            if num < ingredients.count() - 1:
-                ingredient_list += ', '
-        file = 'shopping_list'
-        response = HttpResponse(ingredient_list,
+        today = datetime.date.today()
+        shopping_list = "Список покупок"
+        shopping_list += '\n'.join([
+            f'- {ingredient["ingredient__name"]} '
+            f'({ingredient["ingredient__measurement_unit"]})'
+            f' - {ingredient["amount"]}'
+            for ingredient in ingredients
+        ])
+        response = HttpResponse(shopping_list,
                                 'Content-Type: application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
-        return response'''
+        response['Content-Disposition'] = f'attachment; filename="shopping_list.pdf"'
+        return response
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
