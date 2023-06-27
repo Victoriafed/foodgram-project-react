@@ -168,66 +168,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         return super().update(recipe, validated_data)
 
 
-'''class RecipeSerializer(serializers.ModelSerializer):
-    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
-    author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True)
-    image = Base64ImageField()
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'tags',
-            'author',
-            'ingredients',
-            'name',
-            'image',
-            'text',
-            'cooking_time'
-        )
-
-    def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
-        for ingredient in ingredients:
-            IngredientInRecipe.objects.create(
-                recipe=recipe,
-                ingredient=ingredient.get('id'),
-                amount=ingredient['amount']
-            )
-        recipe.tags.set(tags)
-        return recipe
-
-    def update(self, recipe, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        if 'ingredients' in self.validated_data:
-            IngredientInRecipe.objects.filter(recipe=recipe).delete()
-            for ingredient in ingredients:
-                IngredientInRecipe.objects.create(
-                    recipe=recipe,
-                    ingredient=ingredient.get('id'),
-                    amount=ingredient.get('amount')
-                )
-        if 'tags' in self.validated_data:
-            recipe.tags.set(validated_data.pop('tags'))
-        return super().update(recipe, validated_data)'''
-
-        # fdhhfdh
-    def to_representation(self, instance):
-        self.fields.pop('ingredients')
-        self.fields.pop('tags')
-        representation = super().to_representation(instance)
-        representation['ingredients'] = IngredientInRecipeSerializer(
-            IngredientInRecipe.objects.filter(recipe=instance), many=True
-        ).data
-        representation['tags'] = TagSerializer(
-            instance.tags, many=True
-        ).data
-        return representation
-
-
 class ShortRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
 
