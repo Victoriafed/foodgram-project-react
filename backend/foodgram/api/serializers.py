@@ -183,7 +183,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe.tags.set(validated_data.pop('tags'))
         return super().update(recipe, validated_data)
 
-'''        # fdhhfdh
+        # fdhhfdh
     def to_representation(self, instance):
         self.fields.pop('ingredients')
         self.fields.pop('tags')
@@ -195,7 +195,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             instance.tags, many=True
         ).data
         return representation
-'''
+
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
