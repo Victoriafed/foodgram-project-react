@@ -124,7 +124,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        today = datetime.date.today()
         shopping_list = "Список покупок"
         shopping_list += '\n'.join([
             f'- {ingredient["ingredient__name"]} '
