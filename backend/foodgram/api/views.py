@@ -22,7 +22,7 @@ from recipes.models import (
     IngredientInRecipe,
     Ingredient
 )
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
 
 from users.models import Subscription
 from .pagination import CustomPagination
@@ -76,11 +76,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
+        if request.method == 'DELETE':
+            favorite = get_object_or_404(Favorite, user=request.user,
+                                         recipe=recipe)
+            favorite.delete()
+            return Response(status=HTTP_204_NO_CONTENT)
         if Favorite.objects.filter(recipe=recipe, user=request.user).exists():
-            if not request.method == 'DELETE':
-                favorite = get_object_or_404(Favorite, user=request.user,
-                                             recipe=recipe)
-                favorite.delete()
             return Response({'errors': 'Рецепт уже находится в избранном.'},
                             status=status.HTTP_400_BAD_REQUEST)
         Favorite.objects.get_or_create(user=request.user, recipe=recipe)
@@ -98,6 +99,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             shoppingcart = get_object_or_404(ShoppingCart, user=request.user,
                                              recipe=recipe)
             shoppingcart.delete()
+            return Response(status=HTTP_204_NO_CONTENT)
         if ShoppingCart.objects.filter(recipe=recipe,
                                        user=request.user).exists():
             if not request.method == 'DELETE':
