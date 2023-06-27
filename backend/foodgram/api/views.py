@@ -118,18 +118,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        list_ingredients = ['{ingredient["ingredient__name"]} '
-                            '{ingredient["ingredient__measurement_unit"]} '
-                            '- {ingredient["amount"]}.'
-                            for ingredient in ingredients]
+        list_ingredients = '\n'.join([
+            f'- {ingredient["ingredient__name"]} '
+            f'({ingredient["ingredient__measurement_unit"]})'
+            f' - {ingredient["amount"]}'
+            for ingredient in ingredients
+        ])
         n = '\n'
         text = (
             f'{n.join(n.join(x) for x in list_ingredients)}'
         )
-        filename = 'shopping_list.pdf'
-        response = HttpResponse(text, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-
+        file = 'shopping_list'
+        response = HttpResponse(text,
+                                'Content-Type: application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
         return response
 
     def perform_create(self, serializer):
