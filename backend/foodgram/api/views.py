@@ -116,7 +116,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        ingredient_list = "Cписок покупок:"
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+        p.setFont("Times-Roman", 55)
+        p.drawString(100, 750, "Cписок покупок")
+        p.showPage()
+        p.save()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename="hello.pdf")
+
+
+
+        '''ingredient_list = "Cписок покупок:"
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
@@ -133,7 +144,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response = HttpResponse(ingredient_list,
                                 'Content-Type: application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
-        return response
+        return response'''
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -142,7 +153,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class UserViewSet(DjoserViewSet):
     pagination_class = CustomPagination
 
-    # HHHHH
     @action(
         detail=True,
         permission_classes=[permissions.IsAuthenticated],
@@ -171,10 +181,6 @@ class UserViewSet(DjoserViewSet):
     )
     def subscriptions(self, request):
         user = request.user
-        subscriptions=Subscription.objects.filter(user=user)
-        serializer = SubscriptionSerializer(subscriptions, many=True)
-        return self.get_paginated_response(serializer.data)
-        '''user = request.user
         queryset = Subscription.objects.filter(user=user)
         pages = self.paginate_queryset(queryset)
         serializer = SubscriptionSerializer(
@@ -182,4 +188,4 @@ class UserViewSet(DjoserViewSet):
             many=True,
             context={'request': request}
         )
-        return self.get_paginated_response(serializer.data)'''
+        return self.get_paginated_response(serializer.data)
