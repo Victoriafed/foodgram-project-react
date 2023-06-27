@@ -117,15 +117,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-#        jjj=(for ingredient in ingredients:
-#                f'* {ingredient.name} '
-#                f'({ingredient.measurement_unit})'
-#                f' - {ingredient["amount"]}'
-#        )
-        k=''
+        list_ingredients = []
+        list_ingredients.append(
+            '{ingredient["ingredient__name"]} '
+            '{ingredient["ingredient__measurement_unit"]} '
+            '- {ingredient["ingredient__measurement_unit"]}.'
+             for ingredient in ingredients)
+        n = '\n'
         text = (
             f'Список покупок \n'
-            f'{k.join(f"{key}:{value}" for key, value in ingredients.items())}'
+            f'{n.join(list_ingredients)}'
         )
         p.drawString(10, 10, text)
         p.showPage()
