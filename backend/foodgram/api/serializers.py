@@ -211,8 +211,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         fields = (
             UserSerializer.Meta.fields +
-            'recipes',
-            'recipes_count'
+            ('recipes',
+            'recipes_count')
         )
 
     def get_recipes(self, obj):
