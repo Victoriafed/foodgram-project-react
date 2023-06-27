@@ -1,6 +1,8 @@
 import datetime
 import io
 
+import reportlab
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import FileResponse, HttpResponse
@@ -116,6 +118,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
+        reportlab.rl_config.TTFSearchPath.append(
+            str(settings.BASE_DIR) + '/app/')
         pdfmetrics.registerFont(TTFont('arial', 'arial.ttf'))
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
