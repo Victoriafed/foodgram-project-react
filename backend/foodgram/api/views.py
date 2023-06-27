@@ -48,7 +48,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdminAuthorOrReadOnly,)
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
