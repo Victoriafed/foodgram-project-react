@@ -112,34 +112,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        user = request.user
-        if not user.shopping_cart.exists():
-            return Response(status=HTTP_400_BAD_REQUEST)
-
+        ingredient_list = "Cписок покупок:"
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit'
+            'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-
-        today = datetime.date.today()
-        shopping_list = (
-            f'Список покупок для: {user.get_full_name()}\n\n'
-            f'Дата: {today:%Y-%m-%d}\n\n'
-        )
-        shopping_list += '\n'.join([
-            f'- {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement_unit"]})'
-            f' - {ingredient["amount"]}'
-            for ingredient in ingredients
-        ])
-        shopping_list += f'\n\nFoodgram ({today:%Y})'
-
-        filename = f'{user.username}_shopping_list.txt'
-        response = HttpResponse(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-
+        for num, i in enumerate(ingredients):
+            ingredient_list += (
+                f"\n{i['ingredient__name']} - "
+                f"{i['amount']} {i['ingredient__measurement_unit']}"
+            )
+            if num < ingredients.count() - 1:
+                ingredient_list += ', '
+        file = 'shopping_list'
+        response = HttpResponse(ingredient_list,
+                                'Content-Type: application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
         return response
 
     def perform_create(self, serializer):
