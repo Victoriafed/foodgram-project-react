@@ -113,43 +113,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         ingredients = IngredientInRecipe.objects.filter(
-            recipe__shopping__user=request.user
-        ).values_list(
-            'ingredient__name', 'ingredient__measurement_unit', 'amount'
-        )
-        return FileResponse(
-            render_pdf(ingredients),
-            as_attachment=True,
-            filename='grocery_list.pdf', )
-        '''buffer = io.BytesIO()
-        p = canvas.Canvas(buffer)
-        ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        list_ingredients = []
-        list_ingredients.append(
-            '{ingredient["ingredient__name"]} '
-            '{ingredient["ingredient__measurement_unit"]} '
-            '- {ingredient["amount"]}.'
-             for ingredient in ingredients)
+        list_ingredients = ['{ingredient["ingredient__name"]} '
+                            '{ingredient["ingredient__measurement_unit"]} '
+                            '- {ingredient["amount"]}.'
+                            for ingredient in ingredients]
         n = '\n'
         text = (
-
             f'{n.join(n.join(x) for x in list_ingredients)}'
         )
-        pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
-        p.drawString(100, 750, 'Shopping list суууууууууууу')
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        return FileResponse(
-            buffer, as_attachment=True,
-            filename="shopping_cart.pdf",
-            content_type='application/pdf'
-        )'''
+        filename = 'shopping_list.pdf'
+        response = HttpResponse(text, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+
+        return response
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -158,7 +139,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class UserViewSet(DjoserViewSet):
     pagination_class = CustomPagination
 
-    #HHHHH
+    # HHHHH
     @action(
         detail=True,
         permission_classes=[permissions.IsAuthenticated],
@@ -174,7 +155,8 @@ class UserViewSet(DjoserViewSet):
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if Subscription.objects.filter(user=user, author=author).exists():
-            subscribe = get_object_or_404(Subscription, user=user, author=author)
+            subscribe = get_object_or_404(Subscription, user=user,
+                                          author=author)
             subscribe.delete()
 
     @action(
