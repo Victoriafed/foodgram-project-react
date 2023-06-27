@@ -33,7 +33,6 @@ from .serializers import (
     TagSerializer,
     ShortRecipeSerializer,
     SubscriptionSerializer,
-#    RecipeReadSerializer
 )
 
 User = get_user_model()
