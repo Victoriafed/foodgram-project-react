@@ -134,7 +134,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             user=user).exists()
 
 
-class RecipeModifySerializer(serializers.ModelSerializer):
+class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     ingredients = IngredientInRecipeSerializer(many=True)
     image = Base64ImageField()
