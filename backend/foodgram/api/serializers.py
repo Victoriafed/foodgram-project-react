@@ -201,7 +201,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             return False
         return Subscription.objects.filter(user=user, author=obj).exists()
 
-    #hhh
     def get_recipes(self, obj):
         queryset = Recipe.objects.filter(author=obj.author.id)
         serializer = ShortRecipeSerializer(queryset, many=True)
@@ -223,5 +222,3 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 'Вы уже подписаны на этого автора'
             )
         return data
-
-
