@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models.expressions import F
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -141,7 +142,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientRecipeSerializer(many=True)
+    ingredients = IngredientInRecipeSerializer(many=True)
     image = Base64ImageField()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -167,10 +168,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             ingredient_id = ingredient['id']
             amount = ingredient['amount']
-            if RecipeIngredient.objects.filter(
+            if IngredientInRecipe.objects.filter(
                     recipe=recipe, ingredient=ingredient_id).exists():
                 amount += F('amount')
-            RecipeIngredient.objects.update_or_create(
+            IngredientInRecipe.objects.update_or_create(
                 recipe=recipe, ingredient=ingredient_id,
                 defaults={'amount': amount}
             )
