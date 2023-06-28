@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models.expressions import F
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -134,55 +135,69 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             user=user).exists()
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeModifySerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
+    ingredients = IngredientRecipeSerializer(many=True)
+    image = Base64ImageField()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
     )
-    ingredients = IngredientInRecipeSerializer(many=True)
-    image = Base64ImageField()
 
     class Meta:
         model = Recipe
         fields = (
             'id',
+            'author',
             'ingredients',
             'tags',
             'image',
             'name',
             'text',
-            'cooking_time',
-            'author',
+            'cooking_time'
         )
+        read_only_fields = ('id', 'author', 'tags')
 
-    def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
+    @staticmethod
+    def add_ingredients(ingredients, recipe):
         for ingredient in ingredients:
+            ingredient_id = ingredient['id']
             amount = ingredient['amount']
-            IngredientInRecipe.objects.create(
-                recipe=recipe,
-                ingredient=ingredient.get('id'),
+            if IngredientInRecipe.objects.filter(
+                    recipe=recipe, ingredient=ingredient_id).exists():
+                amount += F('amount')
+            IngredientInRecipe.objects.update_or_create(
+                recipe=recipe, ingredient=ingredient_id,
                 defaults={'amount': amount}
             )
-        recipe.tags.set(tags)
+
+    def create(self, validated_data):
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags_data)
+        self.add_ingredients(ingredients_data, recipe)
         return recipe
 
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
-        if 'ingredients' in self.validated_data:
-            IngredientInRecipe.objects.filter(recipe=recipe).delete()
-            for ingredient in ingredients:
-                IngredientInRecipe.objects.create(
-                    recipe=recipe,
-                    ingredient=ingredient.get('id'),
-                    amount=ingredient.get('amount')
-                )
-        if 'tags' in self.validated_data:
-            recipe.tags.set(validated_data.pop('tags'))
+        tags = validated_data.pop('tags')
+        IngredientInRecipe.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(ingredients, recipe)
+        recipe.tags.set(tags)
         return super().update(recipe, validated_data)
+
+    def to_representation(self, instance):
+        self.fields.pop('ingredients')
+        self.fields.pop('tags')
+        representation = super().to_representation(instance)
+        representation['ingredients'] = IngredientInRecipeSerializer(
+            IngredientInRecipe.objects.filter(recipe=instance), many=True
+        ).data
+        representation['tags'] = TagSerializer(
+            instance.tags, many=True
+        ).data
+        return representation
 
 
 
