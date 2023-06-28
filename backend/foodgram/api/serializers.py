@@ -92,12 +92,8 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    tags = TagSerializer(read_only=True, many=True)
-    ingredients = IngredientInRecipeSerializer(
-        source='ingredientinrecipe_set',
-        many=True,
-        read_only=True,
-    )
+    tags = TagSerializer(many=True)
+    ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField()
@@ -117,6 +113,11 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
 
+    @staticmethod
+    def get_ingredients(obj):
+        ingredients = IngredientInRecipe.objects.filter(recipe=obj)
+        return IngredientInRecipeSerializer(ingredients, many=True).data
+
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
@@ -134,7 +135,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             user=user).exists()
 
     def create(self, validated_data):
-        tags = self.initial_data.get('tags')
+        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient in ingredients:
@@ -203,6 +204,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             return False
         return Subscription.objects.filter(user=user, author=obj).exists()
 
+    #hhh
     def get_recipes(self, obj):
         queryset = Recipe.objects.filter(author=obj.author.id)
         serializer = ShortRecipeSerializer(queryset, many=True)
@@ -224,3 +226,5 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 'Вы уже подписаны на этого автора'
             )
         return data
+
+
