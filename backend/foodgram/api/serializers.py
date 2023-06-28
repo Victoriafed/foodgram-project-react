@@ -91,7 +91,8 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'measurement_unit',
-            'amount')
+            'amount'
+        )
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -169,7 +170,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             IngredientInRecipe.objects.create(
                 recipe=recipe,
                 ingredient=ingredient.get('id'),
-                amount=ingredient['amount']
+                amount=ingredient.get('amount')
             )
         recipe.tags.set(tags)
         return recipe
