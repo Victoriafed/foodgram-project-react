@@ -57,12 +57,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     serializer_class = RecipeSerializer
 
-
-    '''def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
-            return RecipeReadSerializer
-        return RecipeSerializer'''
-
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
         if is_favorited is not None and int(is_favorited) == 1:

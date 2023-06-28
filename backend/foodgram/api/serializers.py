@@ -87,12 +87,16 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientInRecipe
-        fields = ('id', 'amount')
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True)
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -135,7 +139,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             user=user).exists()
 
     def create(self, validated_data):
-        tags = self.initial_data.get('tags')
+        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient in ingredients:
