@@ -164,7 +164,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
-        read_only=True
     )
 
     class Meta:
