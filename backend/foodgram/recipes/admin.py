@@ -6,7 +6,6 @@ from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
-    empty_value_display = '-пусто-'
 
 
 class RecipeAdmin(admin.ModelAdmin):
