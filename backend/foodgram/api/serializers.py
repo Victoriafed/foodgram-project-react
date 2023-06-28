@@ -164,6 +164,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
+        read_only=True
     )
 
     class Meta:
@@ -178,7 +179,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time'
         )
-        read_only_fields = ('id', 'author', 'tags')
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
