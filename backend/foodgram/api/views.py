@@ -53,8 +53,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminAuthorOrReadOnly,)
     pagination_class = CustomPagination
     serializer_class = RecipeSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = RecipeFilter
 
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
