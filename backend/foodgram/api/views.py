@@ -108,7 +108,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        shopping = f'Список покупок\n'
+        shopping = 'Список покупок\n'
         shopping += '\n'.join([
             f'- {ingredient["ingredient__name"]} '
             f'({ingredient["ingredient__measurement_unit"]})'
@@ -119,7 +119,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                 'Content-Type: application/pdf')
         response[
             "Content-Disposition"
-        ] = f'attachment; filename="shopping.pdf"'
+        ] = 'attachment; filename="shopping.pdf"'
         return response
 
     def perform_create(self, serializer):
