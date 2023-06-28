@@ -254,10 +254,14 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes_count'
         )
 
-    def get_is_subscribed(self, obj):
-        return Subscription.objects.filter(user=obj.user, author=obj.author).exists()
+    @staticmethod
+    def get_is_subscribed(obj):
+        return Subscription.objects.filter(
+            user=obj.user,
+            author=obj.author).exists()
 
-    def get_recipes(self, obj):
+    @staticmethod
+    def get_recipes(obj):
         queryset = Recipe.objects.filter(author=obj.author.id)
         serializer = ShortRecipeSerializer(queryset, many=True)
         return serializer.data
@@ -278,5 +282,3 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 'Вы уже подписаны на этого автора'
             )
         return data
-
-
