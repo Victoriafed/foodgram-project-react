@@ -1,11 +1,16 @@
 from django.contrib.auth import get_user_model
-from django.db.models.expressions import F
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    IngredientInRecipe,
+    Recipe,
+    ShoppingCart,
+    Tag
+)
 from users.models import Subscription
 
 User = get_user_model()
@@ -96,6 +101,7 @@ class IngredientReadSerializer(serializers.ModelSerializer):
         source='ingredient.measurement_unit'
     )
     amount = serializers.IntegerField()
+
     class Meta:
         model = Ingredient
         fields = (
@@ -110,7 +116,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     ingredients = serializers.SerializerMethodField()
-    is_favorited = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
     image = Base64ImageField()
 
