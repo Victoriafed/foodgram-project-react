@@ -141,7 +141,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True)
+    ingredients = IngredientRecipeSerializer(many=True)
     image = Base64ImageField()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -162,17 +162,25 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('id', 'author', 'tags')
 
-    def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
+    @staticmethod
+    def add_ingredients(ingredients, recipe):
         for ingredient in ingredients:
-            IngredientInRecipe.objects.create(
-                recipe=recipe,
-                ingredient=ingredient.get('id'),
-                amount=ingredient['amount']
+            ingredient_id = ingredient['id']
+            amount = ingredient['amount']
+            if RecipeIngredient.objects.filter(
+                    recipe=recipe, ingredient=ingredient_id).exists():
+                amount += F('amount')
+            RecipeIngredient.objects.update_or_create(
+                recipe=recipe, ingredient=ingredient_id,
+                defaults={'amount': amount}
             )
-        recipe.tags.set(tags)
+
+    def create(self, validated_data):
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags_data)
+        self.add_ingredients(ingredients_data, recipe)
         return recipe
 
     def update(self, recipe, validated_data):
@@ -188,6 +196,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if 'tags' in self.validated_data:
             recipe.tags.set(validated_data.pop('tags'))
         return super().update(recipe, validated_data)
+
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()

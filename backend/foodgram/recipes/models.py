@@ -157,4 +157,4 @@ class IngredientInRecipe(models.Model):
                 fields=('recipe', 'ingredient'),
                 name='Unique_ingredient_in_recipe')
         ]
-        db_table = 'recipe_recipe_ingredient'
+
