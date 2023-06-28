@@ -92,7 +92,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(many=True, read_only=True)
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -135,7 +135,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             user=user).exists()
 
     def create(self, validated_data):
-        tags = validated_data.pop('tags')
+        self.initial_data.get("tags")
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient in ingredients:
