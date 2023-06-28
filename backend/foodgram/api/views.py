@@ -4,14 +4,19 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserViewSet
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    IngredientInRecipe,
+    Recipe,
+    ShoppingCart,
+    Tag
+)
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
-
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Tag)
 from users.models import Subscription
 
 from .filters import IngredientFilter, RecipeFilter
@@ -109,16 +114,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        shopping_list = f'Список покупок\n'
-        shopping_list += '\n'.join([
+        shopping = f'Список покупок\n'
+        shopping += '\n'.join([
             f'- {ingredient["ingredient__name"]} '
             f'({ingredient["ingredient__measurement_unit"]})'
             f' - {ingredient["amount"]}'
             for ingredient in ingredients
         ])
-        response = HttpResponse(shopping_list,
+        response = HttpResponse(shopping,
                                 'Content-Type: application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="shopping_list.pdf"'
+        response[
+            "Content-Disposition"
+        ] = f'attachment; filename="shopping.pdf"'
         return response
 
     def perform_create(self, serializer):
@@ -137,7 +144,9 @@ class UserViewSet(DjoserViewSet):
         user = request.user
         author = get_object_or_404(User, id=id)
         if request.method == 'DELETE':
-            subscribe = get_object_or_404(Subscription, user=user, author=author)
+            subscribe = get_object_or_404(
+                Subscription, user=user, author=author
+            )
             subscribe.delete()
             return Response(status=HTTP_204_NO_CONTENT)
         if Subscription.objects.filter(user=user, author=author).exists():
@@ -147,7 +156,6 @@ class UserViewSet(DjoserViewSet):
         subscribe = Subscription.objects.create(user=user, author=author)
         data = SubscriptionSerializer(subscribe)
         return Response(data.data, status=status.HTTP_201_CREATED)
-
 
     @action(
         detail=False,
