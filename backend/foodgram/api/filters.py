@@ -2,6 +2,8 @@ from django_filters import rest_framework as filters
 
 from recipes.models import Recipe, Tag
 
+from backend.foodgram.recipes.models import Ingredient
+
 
 class IngredientFilter(filters.FilterSet):
     name = filters.CharFilter(
