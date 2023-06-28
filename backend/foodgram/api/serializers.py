@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.db.models.expressions import F
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -137,46 +136,38 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True)
-    image = Base64ImageField()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
     )
+    ingredients = IngredientInRecipeSerializer(many=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
         fields = (
             'id',
-            'author',
             'ingredients',
             'tags',
             'image',
             'name',
             'text',
-            'cooking_time'
+            'cooking_time',
+            'author',
         )
-        read_only_fields = ('id', 'author', 'tags')
-
-    @staticmethod
-    def add_ingredients(ingredients, recipe):
-        for ingredient in ingredients:
-            ingredient_id = ingredient['id']
-            amount = ingredient['amount']
-            if IngredientInRecipe.objects.filter(
-                    recipe=recipe, ingredient=ingredient_id).exists():
-                amount += F('amount')
-            IngredientInRecipe.objects.update_or_create(
-                recipe=recipe, ingredient=ingredient_id,
-                defaults={'amount': amount}
-            )
 
     def create(self, validated_data):
-        ingredients_data = validated_data.pop('ingredients')
-        tags_data = validated_data.pop('tags')
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags_data)
-        self.add_ingredients(ingredients_data, recipe)
+        for ingredient in ingredients:
+            amount = ingredient['amount']
+            IngredientInRecipe.objects.create(
+                recipe=recipe,
+                ingredient=ingredient.get('id'),
+                defaults={'amount': amount}
+            )
+        recipe.tags.set(tags)
         return recipe
 
     def update(self, recipe, validated_data):
