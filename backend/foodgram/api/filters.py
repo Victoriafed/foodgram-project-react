@@ -1,8 +1,14 @@
+from django_filters import rest_framework as filters
 
-from django import template
+from backend.foodgram.recipes.models import Ingredient
 
-register = template.Library()
 
-@register.simple_tag
-def IngredientFilter(char):
-    return IngredientFilter.objects.filter(name__startswith=char)
+class IngredientFilter(filters.FilterSet):
+    name = filters.CharFilter(
+        field_name='name',
+        lookup_expr='istartswith',
+    )
+
+    class Meta:
+        model = Ingredient
+        fields = ('name', )
