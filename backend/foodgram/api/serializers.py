@@ -201,7 +201,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return RecipeReadSerializer(instance, context=context).data
 
     @staticmethod
-    def validate_ingredients(self, value):
+    def validate_ingredients(value):
         ingredients = []
         for ingredient in value:
             ingredient = get_object_or_404(Ingredient, name=ingredient)
