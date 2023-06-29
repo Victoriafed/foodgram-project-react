@@ -86,20 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-        recipe = get_object_or_404(Recipe, id=pk)
-        if request.method == 'DELETE':
-            shoppingcart = get_object_or_404(ShoppingCart, user=request.user,
-                                             recipe=recipe)
-            shoppingcart.delete()
-            return Response(status=HTTP_204_NO_CONTENT)
-        if ShoppingCart.objects.filter(recipe=recipe,
-                                       user=request.user).exists():
-            return Response(
-                {'errors': 'Рецепт уже находится в списке покупок.'},
-                status=status.HTTP_400_BAD_REQUEST)
-        ShoppingCart.objects.create(user=request.user, recipe=recipe)
-        data = ShortRecipeSerializer(recipe)
-        return Response(data.data, status=status.HTTP_201_CREATED)
+        return self.add_dell_model(request, pk, ShoppingCart)
 
     @action(
         detail=False,
