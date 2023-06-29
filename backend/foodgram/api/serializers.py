@@ -200,15 +200,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         context = {'request': request}
         return RecipeReadSerializer(instance, context=context).data
 
-    @staticmethod
-    def validate_ingredients(self, value):
-        ingredients = [ingredient['id'] for ingredient in value]
-        if len(ingredients) != len(set(ingredients)):
-            raise serializers.ValidationError(
-                'Ингредиенты в рецепте должны быть уникальными!'
-            )
-        return value
-
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
