@@ -202,22 +202,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_ingredients(self, value):
-        ingredients = [item['id'] for item in value]
+        ingredients = [ingredient['id'] for ingredient in value]
         if len(ingredients) != len(set(ingredients)):
             raise serializers.ValidationError(
                 'Ингредиенты в рецепте должны быть уникальными!'
             )
         return value
-        '''ingredients = []
-        for ingredient in value:
-            ingredient = get_object_or_404(Ingredient, name=ingredient)
-            if ingredient in ingredients:
-                raise serializers.ValidationError(
-                    'Ингредиент с списке повторяется. Удалите повтор'
-                )
-            ingredients.append(ingredient)
-        return value
-'''
+
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
