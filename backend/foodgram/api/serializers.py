@@ -202,10 +202,14 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_ingredients(value):
-        if len(value) != len(set(value)):
-            raise serializers.ValidationError(
-                'Ингредиенты не могут повторяться'
-            )
+        ingredients = []
+        for ingredient in value:
+            ingredient = get_object_or_404(Ingredient, id=ingredient.get('id'))
+            if ingredient in ingredients:
+                raise serializers.ValidationError(
+                    'Ингредиент с списке повторяется. Удалите повтор'
+                )
+            ingredients.append(ingredient)
         return value
 
 
