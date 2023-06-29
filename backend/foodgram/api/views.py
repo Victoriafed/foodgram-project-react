@@ -57,24 +57,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Recipe.objects.filter(shopping_cart__user=self.request.user)
         return Recipe.objects.all()
 
+    @staticmethod
+    def add_dell_model(request, pk, model):
+        recipe = get_object_or_404(Recipe, id=pk)
+        if request.method == 'DELETE':
+            model_object = get_object_or_404(model, user=request.user,
+                                             recipe=recipe)
+            model_object.delete()
+            return Response(status=HTTP_204_NO_CONTENT)
+        if model.objects.filter(recipe=recipe, user=request.user).exists():
+            return Response({'errors': 'Рецепт уже добавлен.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        model.objects.create(user=request.user, recipe=recipe)
+        data = ShortRecipeSerializer(recipe)
+        return Response(data.data, status=status.HTTP_201_CREATED)
+
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk):
-        recipe = get_object_or_404(Recipe, id=pk)
-        if request.method == 'DELETE':
-            favorite = get_object_or_404(Favorite, user=request.user,
-                                         recipe=recipe)
-            favorite.delete()
-            return Response(status=HTTP_204_NO_CONTENT)
-        if Favorite.objects.filter(recipe=recipe, user=request.user).exists():
-            return Response({'errors': 'Рецепт уже находится в избранном.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        Favorite.objects.create(user=request.user, recipe=recipe)
-        data = ShortRecipeSerializer(recipe)
-        return Response(data.data, status=status.HTTP_201_CREATED)
+        return self.add_dell_model(request, pk, Favorite)
 
     @action(
         detail=True,
