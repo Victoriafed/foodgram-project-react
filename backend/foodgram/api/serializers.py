@@ -200,6 +200,18 @@ class RecipeSerializer(serializers.ModelSerializer):
         context = {'request': request}
         return RecipeReadSerializer(instance, context=context).data
 
+    @staticmethod
+    def validate_ingredients(self, value):
+        ingredients = []
+        for ingredient in value:
+            ingredient = get_object_or_404(Ingredient, name=ingredient)
+            if ingredient in ingredients:
+                raise serializers.ValidationError(
+                    'Ингредиент с списке повторяется. Удалите повтор'
+                )
+            ingredients.append(ingredient)
+        return value
+
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
