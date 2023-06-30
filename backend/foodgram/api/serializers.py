@@ -200,7 +200,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         context = {'request': request}
         return RecipeReadSerializer(instance, context=context).data
 
-    @staticmethod
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
         ingredients_list = [ingredient['id'] for ingredient in ingredients]
