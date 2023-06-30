@@ -204,7 +204,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return RecipeReadSerializer(instance, context=context).data
 
     def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
+        ingredients = data['ingredients']
         ing_list = [ingredient['id'] for ingredient in ingredients]
         if len(ing_list) != len(set(ing_list)):
             raise serializers.ValidationError(
