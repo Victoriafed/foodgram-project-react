@@ -169,7 +169,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
-    def add_ingredients(self, recipe, ingredients):
+    @staticmethod
+    def add_ingredients(recipe, ingredients):
         IngredientInRecipe.objects.bulk_create(
             IngredientInRecipe(
                 ingredient=ingredient.get('id'),
