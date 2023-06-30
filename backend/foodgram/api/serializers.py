@@ -201,16 +201,14 @@ class RecipeSerializer(serializers.ModelSerializer):
         return RecipeReadSerializer(instance, context=context).data
 
     @staticmethod
-    def validate_ingredients(value):
-        ingredients = []
-        for ingredient in value:
-            ingredient = get_object_or_404(Ingredient, name=ingredient)
-            if ingredient in ingredients:
-                raise serializers.ValidationError(
-                    'Ингредиент с списке повторяется. Удалите повтор'
-                )
-            ingredients.append(ingredient)
-        return value
+    def validate(self, data):
+        ingredients = self.initial_data.get('ingredients')
+        ingredients_list = [ingredient['id'] for ingredient in ingredients]
+        if len(ingredients_list) != len(set(ingredients_list)):
+            raise serializers.ValidationError(
+                'Проверьте, какой-то ингредиент был выбран более 1 раза'
+            )
+        return data
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
