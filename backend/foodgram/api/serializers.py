@@ -232,10 +232,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source='author.username')
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
-    recipes = ShortRecipeSerializer(
-        many=True,
-        queryset=Recipe.objects.all()
-    )
+    recipes = ShortRecipeSerializer(many=True, read_only=True)
     recipes_count = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
 
