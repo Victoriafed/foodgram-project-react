@@ -104,7 +104,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         shopping += '\n'.join([
             f'- {ingredient["ingredient__name"]} '
             f'({ingredient["ingredient__measurement_unit"]})'
-            f' - {ingredient["amount"]}'
+            f' - {ingredient["quantity"]}'
             for ingredient in ingredients
         ])
         response = HttpResponse(shopping,
