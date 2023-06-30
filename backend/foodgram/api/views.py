@@ -13,7 +13,6 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag)
 from users.models import Subscription
-
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminAuthorOrReadOnly, IsAdminOrReadOnly
@@ -59,7 +58,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Recipe.objects.all()
 
     @staticmethod
-    def add_dell_model(request, pk, model):
+    def add_del_model(request, pk, model):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'DELETE':
             model_object = get_object_or_404(model, user=request.user,
@@ -79,7 +78,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk):
-        return self.add_dell_model(request, pk, Favorite)
+        return self.add_del_model(request, pk, Favorite)
 
     @action(
         detail=True,
@@ -87,7 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-        return self.add_dell_model(request, pk, ShoppingCart)
+        return self.add_del_model(request, pk, ShoppingCart)
 
     @action(
         detail=False,
