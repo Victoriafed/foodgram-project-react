@@ -169,16 +169,21 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
+    def add_ingredients(self, recipe, ingredients):
+        IngredientInRecipe.objects.bulk_create(
+            IngredientInRecipe(
+                ingredient=ingredient.get('id'),
+                recipe=recipe,
+                amount=ingredient['amount']
+            )
+            for ingredient in ingredients
+        )
+
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
-        for ingredient in ingredients:
-            IngredientInRecipe.objects.create(
-                recipe=recipe,
-                ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount')
-            )
+        self.add_ingredients(recipe, ingredients)
         recipe.tags.set(tags)
         return recipe
 
@@ -200,6 +205,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         context = {'request': request}
         return RecipeReadSerializer(instance, context=context).data
 
+    #llllll
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
         ingredients_list = [ingredient['id'] for ingredient in ingredients]
