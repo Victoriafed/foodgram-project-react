@@ -267,7 +267,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         author = get_object_or_404(User, self.context.get['id'])
-        user = self.context['request'].user
+        user = data['user']
         if user == author:
             raise serializers.ValidationError(
                 'Нельзя подписаться на самого себя'
