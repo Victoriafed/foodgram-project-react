@@ -99,7 +99,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
+        ).annotate(quantity=Sum('amount'))
         shopping = 'Список покупок\n'
         shopping += '\n'.join([
             f'- {ingredient["ingredient__name"]} '

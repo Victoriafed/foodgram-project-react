@@ -176,7 +176,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             IngredientInRecipe(
                 ingredient=ingredient.get('id'),
                 recipe=recipe,
-                amount=ingredient['amount']
+                amount=ingredient.get('amount')
             )
             for ingredient in ingredients
         )
@@ -204,8 +204,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
-        ingredients_list = [ingredient['id'] for ingredient in ingredients]
-        if len(ingredients_list) != len(set(ingredients_list)):
+        ing_list = [ingredient['id'] for ingredient in ingredients]
+        if len(ing_list) != len(set(ing_list)):
             raise serializers.ValidationError(
                 'Ингредиент в списке повторяется. Удалите повтор'
             )
