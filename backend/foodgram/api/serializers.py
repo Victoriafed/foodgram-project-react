@@ -202,14 +202,11 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
-        ingredients_list = []
-        for ingredient in ingredients:
-            ingredient_j = get_object_or_404(Ingredient, id=ingredient['id'])
-            if ingredient_j in ingredients_list:
-                raise serializers.ValidationError(
-                    'Ингредиент с списке повторяется. Удалите повтор'
-                )
-            ingredients.append(ingredient)
+        ingredients_list = [ingredient['id'] for ingredient in ingredients]
+        if len(ingredients_list) != len(set(ingredients_list)):
+            raise serializers.ValidationError(
+                'Ингредиент в списке повторяется. Удалите повтор'
+            )
         return data
 
 
