@@ -58,7 +58,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Recipe.objects.all()
 
     @staticmethod
-    def add_del_model(request, pk, model):
+    def add_or_del(request, pk, model):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'DELETE':
             model_object = get_object_or_404(model, user=request.user,
@@ -78,7 +78,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk):
-        return self.add_del_model(request, pk, Favorite)
+        return self.add_or_del(request, pk, Favorite)
 
     @action(
         detail=True,
@@ -86,7 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-        return self.add_del_model(request, pk, ShoppingCart)
+        return self.add_or_del(request, pk, ShoppingCart)
 
     @action(
         detail=False,
