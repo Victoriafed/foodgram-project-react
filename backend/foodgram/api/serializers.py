@@ -239,7 +239,7 @@ class SubscriptionSerializer(UserSerializer):
             'last_name',
             'is_subscribed',
             'recipes',
-            'recipes_count',
+            'recipes_count'
         )
         read_only_fields = ('all')
 
