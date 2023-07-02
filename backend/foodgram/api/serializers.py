@@ -245,4 +245,4 @@ class SubscriptionSerializer(UserSerializer):
 
     @staticmethod
     def get_recipes_count(obj):
-        return obj.recipes.count()
+        return Recipe.objects.filter(author=obj.author.id).count()
