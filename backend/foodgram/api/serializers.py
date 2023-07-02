@@ -250,12 +250,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         )
 
     @staticmethod
-    def get_recipes(obj):
-        queryset = Recipe.objects.filter(author=obj.author.id)
-        serializer = ShortRecipeSerializer(queryset, many=True)
-        return serializer.data
-
-    @staticmethod
     def get_is_subscribed(obj):
         return Subscription.objects.filter(
             user=obj.user,
