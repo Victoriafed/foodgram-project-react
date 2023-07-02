@@ -232,20 +232,20 @@ class SubscriptionSerializer(UserSerializer):
     class Meta:
         model = User
         fields = (
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-            "recipes",
-            "recipes_count",
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
         )
-        read_only_fields = ("all",)
+        read_only_fields = ('all',)
 
     def get_is_subscribed(*args) -> bool:
         return True
 
     @staticmethod
-    def get_recipes_count(obj: User) -> int:
+    def get_recipes_count(obj):
         return obj.recipes.count()
