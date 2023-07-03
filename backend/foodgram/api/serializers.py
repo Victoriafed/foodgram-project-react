@@ -269,6 +269,5 @@ class SubscriptionSerializer(UserSerializer):
             raise serializers.ValidationError(
                 'Вы уже подписаны на этого автора'
             )
-
         return data
 
