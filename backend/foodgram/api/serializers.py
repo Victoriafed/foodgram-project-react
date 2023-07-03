@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -233,27 +234,54 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscriptionSerializer(UserSerializer):
-    recipes = ShortRecipeSerializer(many=True, read_only=True)
+class SubscriptionSerializer(serializers.ModelSerializer):
+    email = serializers.ReadOnlyField(source='author.email')
+    id = serializers.ReadOnlyField(source='author.id')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = Subscription
         fields = (
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-            "recipes",
-            "recipes_count",
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
         )
-        read_only_fields = ("all",)
 
-    def get_is_subscribed(*args):
-        return True
+    @staticmethod
+    def get_is_subscribed(obj):
+        return Subscription.objects.filter(
+            user=obj.user,
+            author=obj.author).exists()
+
+    @staticmethod
+    def get_recipes(obj):
+        queryset = Recipe.objects.filter(author=obj.author.id)
+        serializer = ShortRecipeSerializer(queryset, many=True)
+        return serializer.data
 
     @staticmethod
     def get_recipes_count(obj):
-        return obj.recipes.count()
+        return Recipe.objects.filter(author=obj.author.id).count()
+
+    def validate(self, data):
+        author = get_object_or_404(User, self.context.get['id'])
+        user = data['user']
+        if user == author:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя'
+            )
+        if Subscription.objects.filter(user=user, author=author).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны на этого автора'
+            )
+        return data
