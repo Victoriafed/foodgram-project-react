@@ -257,7 +257,6 @@ class SubscriptionSerializer(UserSerializer):
             'first_name',
             'last_name',
             'is_subscribed',
-            'recipes',
             'recipes_count'
         )
 
