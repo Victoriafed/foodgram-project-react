@@ -87,6 +87,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
             'amount'
         )
 
+    @staticmethod
     def validate_amount(value):
         if value <= 0:
             raise serializers.ValidationError(
