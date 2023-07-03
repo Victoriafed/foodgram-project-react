@@ -190,14 +190,27 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        instance = super().update(instance, validated_data)
-        instance.ingredients.clear()
-        self.add_ingredients(recipe=instance, ingredients=ingredients)
-        instance.tags.clear()
-        instance.tags.set(tags)
+        context = self.context['request']
+        ingredients = validated_data.pop('recipe_ingredients')
+        tags_set = context.data['tags']
+        recipe = instance
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
+        instance.image = validated_data.get('image', instance.image)
         instance.save()
+        instance.tags.set(tags_set)
+        IngredientInRecipe.objects.filter(recipe=instance).delete()
+        ingredients_req = context.data['ingredients']
+        for ingredient in ingredients_req:
+            ingredient_model = Ingredient.objects.get(id=ingredient['id'])
+            IngredientInRecipe.objects.create(
+                recipe=recipe,
+                ingredient=ingredient_model,
+                amount=ingredient['amount'],
+            )
         return instance
 
     def to_representation(self, instance):
