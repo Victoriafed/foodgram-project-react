@@ -248,9 +248,9 @@ class SubscriptionSerializer(UserSerializer):
             'last_name',
             'is_subscribed',
             'recipes',
-            'recipes_count'
+            'recipes_count',
         )
-        read_only_fields = ('all')
+        read_only_fields = ('all',)
 
     @staticmethod
     def get_recipes_count(obj):
