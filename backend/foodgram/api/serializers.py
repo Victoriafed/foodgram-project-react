@@ -241,20 +241,32 @@ class SubscriptionSerializer(UserSerializer):
     class Meta:
         model = User
         fields = (
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-            "recipes",
-            "recipes_count",
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
         )
-        read_only_fields = ("all",)
-
-    def get_is_subscribed(*args):
-        return True
+        read_only_fields = ('all')
 
     @staticmethod
     def get_recipes_count(obj):
-        return obj.recipes.count(
+        return Recipe.objects.filter(author=obj.author.id).count()
+
+    def validate(self, data):
+        author = get_object_or_404(User, self.context.get['id'])
+        user = data['user']
+        if user == author:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя'
+            )
+
+        if Subscription.objects.filter(user=user, author=author).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны на этого автора'
+            )
+        return data
+
