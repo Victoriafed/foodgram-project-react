@@ -234,12 +234,18 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscriptionSerializer(UserSerializer):
-    recipes = ShortRecipeSerializer(many=True, read_only=True)
+class SubscriptionSerializer(serializers.ModelSerializer):
+    email = serializers.ReadOnlyField(source='author.email')
+    id = serializers.ReadOnlyField(source='author.id')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = Subscription
         fields = (
             'email',
             'id',
@@ -248,9 +254,20 @@ class SubscriptionSerializer(UserSerializer):
             'last_name',
             'is_subscribed',
             'recipes',
-            'recipes_count',
+            'recipes_count'
         )
-        read_only_fields = ('all',)
+
+    @staticmethod
+    def get_is_subscribed(obj):
+        return Subscription.objects.filter(
+            user=obj.user,
+            author=obj.author).exists()
+
+    @staticmethod
+    def get_recipes(obj):
+        queryset = Recipe.objects.filter(author=obj.author.id)
+        serializer = ShortRecipeSerializer(queryset, many=True)
+        return serializer.data
 
     @staticmethod
     def get_recipes_count(obj):
