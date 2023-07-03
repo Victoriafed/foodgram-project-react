@@ -270,4 +270,3 @@ class SubscriptionSerializer(UserSerializer):
                 'Вы уже подписаны на этого автора'
             )
         return data
-
