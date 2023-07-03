@@ -263,10 +263,8 @@ class SubscriptionSerializer(UserSerializer):
             raise serializers.ValidationError(
                 'Нельзя подписаться на самого себя'
             )
-
         if Subscription.objects.filter(user=user, author=author).exists():
             raise serializers.ValidationError(
                 'Вы уже подписаны на этого автора'
             )
         return data
-
