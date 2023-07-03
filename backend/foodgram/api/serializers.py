@@ -87,14 +87,6 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
             'amount'
         )
 
-    @staticmethod
-    def validate_amount(value):
-        if value <= 0:
-            raise serializers.ValidationError(
-                'Количество не может быть отрицательным'
-            )
-        return value
-
 
 class IngredientReadSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
@@ -200,7 +192,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
-        IngredientInRecipe.objects.filter(recipe=recipe).delete()
+        IngredientInRecipe.objects.filter(recipe=recipe).all().delete()
         self.add_ingredients(recipe, ingredients)
         if 'tags' in self.validated_data:
             recipe.tags.set(validated_data.pop('tags'))
@@ -218,6 +210,11 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Ингредиент в списке повторяется. Удалите повтор'
             )
+        for ingredient in ingredients:
+            if int(ingredient['amount']) <= 0:
+                raise serializers.ValidationError(
+                    'Количество не может быть отрицательным'
+                )
         return data
 
 
