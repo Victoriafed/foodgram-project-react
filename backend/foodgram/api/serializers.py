@@ -87,6 +87,13 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
             'amount'
         )
 
+    def validate_amount(value):
+        if value <= 0:
+            raise serializers.ValidationError(
+                'Количество не может быть отрицательным'
+            )
+        return value
+
 
 class IngredientReadSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
