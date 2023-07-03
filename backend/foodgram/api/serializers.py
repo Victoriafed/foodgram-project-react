@@ -150,7 +150,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True, read_only=True)
+    ingredients = IngredientInRecipeSerializer(many=True)
     image = Base64ImageField()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -190,11 +190,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, recipe, validated_data):
-        recipe.ingredients.clear()
         ingredients = validated_data.pop('ingredients')
-        self.add_ingredients(recipe, ingredients)
-        if 'tags' in self.validated_data:
-            recipe.tags.set(validated_data.pop('tags'))
+        tags = validated_data.pop('tags')
+        IngredientInRecipe.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(ingredients, recipe)
+        recipe.tags.set(tags)
         return super().update(recipe, validated_data)
 
     def to_representation(self, instance):
