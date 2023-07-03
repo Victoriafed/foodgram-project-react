@@ -157,12 +157,7 @@ class IngredientInRecipe(models.Model):
     )
     amount = models.IntegerField(
         verbose_name='Количество',
-        validators=[
-            MinValueValidator(
-                (1),
-                message='Количество не может быть отрицательным'
-            )
-        ]
+        validators=(MinValueValidator(1),)
     )
 
     class Meta:

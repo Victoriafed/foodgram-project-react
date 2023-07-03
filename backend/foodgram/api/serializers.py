@@ -78,6 +78,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
@@ -191,14 +192,11 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        instance = super().update(recipe, validated_data)
-        instance.ingredients.clear()
-        self.add_ingredients(instance, ingredients)
-        instance.tags.clear()
-        instance.tags.set(tags)
-        instance.save()
-        return instance
+        IngredientInRecipe.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(recipe, ingredients)
+        if 'tags' in self.validated_data:
+            recipe.tags.set(validated_data.pop('tags'))
+        return super().update(recipe, validated_data)
 
     def to_representation(self, instance):
         request = self.context.get('request')
@@ -212,12 +210,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Ингредиент в списке повторяется. Удалите повтор'
             )
-        for ingredient in ingredients:
-            if int(ingredient['amount']) < 0:
-                raise serializers.ValidationError({
-                    'ingredients': ('Убедитесь, что значение количества '
-                                    'ингредиента больше 0')
-                })
         return data
 
 
@@ -249,9 +241,8 @@ class SubscriptionSerializer(UserSerializer):
             'is_subscribed',
             'recipes',
             'recipes_count'
-
         )
-        read_only_fields = ('all', )
+        read_only_fields = ('all')
 
     @staticmethod
     def get_recipes_count(obj):
