@@ -211,10 +211,11 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'Ингредиент в списке повторяется. Удалите повтор'
             )
         for ingredient in ingredients:
-            if int(ingredient['amount']) <= 0:
-                raise serializers.ValidationError(
-                    'Количество не может быть отрицательным'
-                )
+            if int(ingredient['amount']) < 0:
+                raise serializers.ValidationError({
+                    'ingredients': ('Убедитесь, что значение количества '
+                                    'ингредиента больше 0')
+                })
         return data
 
 
