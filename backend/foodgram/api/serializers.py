@@ -225,7 +225,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(UserSerializer):
-    recipes = ShortRecipeSerializer()
+    recipes = ShortRecipeSerializer(many=True)
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
