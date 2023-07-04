@@ -246,16 +246,7 @@ class SubscriptionSerializer(UserSerializer):
 
     @staticmethod
     def get_recipes_count(obj):
-        return obj.recipes.count()
-
-    def get_recipes(self, obj):
-        request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
-        if limit:
-            recipes = recipes[:int(limit)]
-        serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
-        return serializer.data
+        return obj.recipe.count()
 
     def validate(self, data):
         author = get_object_or_404(User, self.context.get['id'])
