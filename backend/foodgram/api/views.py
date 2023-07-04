@@ -118,14 +118,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(DjoserViewSet):
-    additional_serializer = SubscriptionSerializer
     pagination_class = CustomPagination
-    permission_classes = (permissions.AllowAny,)
 
     @action(
-        methods=['POST', 'DELETE'],
         detail=True,
-        permission_classes=(permissions.IsAuthenticated,)
+        permission_classes=[permissions.IsAuthenticated],
+        methods=['POST', 'DELETE']
     )
     def subscribe(self, request, id):
         user = request.user
@@ -145,15 +143,13 @@ class UserViewSet(DjoserViewSet):
         return Response(data.data, status=status.HTTP_201_CREATED)
 
     @action(
-        methods=('get',),
         detail=False,
-        permission_classes=(permissions.IsAuthenticated,)
+        permission_classes=[permissions.IsAuthenticated],
+        methods=['GET']
     )
     def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(subscription_author__user=user)
-        pages = self.paginate_queryset(queryset)
-        serializer = SubscriptionSerializer(pages,
-                                            many=True,
-                                            context={'request': request})
+        pages = self.paginate_queryset(
+            User.objects.filter(subscription_author__user=self.request.user)
+        )
+        serializer = SubscriptionSerializer(pages, many=True)
         return self.get_paginated_response(serializer.data)
