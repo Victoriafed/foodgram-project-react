@@ -249,9 +249,8 @@ class SubscriptionSerializer(UserSerializer):
     def get_is_subscribed(*args):
         return True
 
-    @staticmethod
-    def get_recipes_count(obj):
-        return Recipe.objects.filter(author=obj.author.id).count()
+    def get_recipes_count(self, obj: User) -> int:
+        return obj.recipe.count()
 
     def validate(self, data):
         author = get_object_or_404(User, self.context.get['id'])
