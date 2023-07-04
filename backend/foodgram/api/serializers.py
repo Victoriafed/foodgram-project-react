@@ -175,8 +175,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def add_ingredients(recipe, ingredients):
         IngredientInRecipe.objects.bulk_create(
             IngredientInRecipe(
-                ingredient=Ingredient.objects.get(
-                    id=ingredient.get('id')),
+                ingredient_id=ingredient['id'],
                 recipe=recipe,
                 amount=ingredient.get('amount')
             )
@@ -192,15 +191,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     @transaction.atomic
-    def update(self, instance, validated_data):
-        if "ingredientinrecipe_set" in validated_data:
-            ingredientinrecipe_set = validated_data.pop("ingredientinrecipe_set")
-            if ingredientinrecipe_set:
-                instance.ingredients.clear()
-            RecipeSerializer.add_ingredients(
-                instance, ingredientinrecipe_set
-            )
-        return super().update(instance, validated_data)
+    def update(self, recipe, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        IngredientInRecipe.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(recipe, ingredients)
+        if 'tags' in self.validated_data:
+            recipe.tags.clear()
+            recipe.tags.set(tags)
+        return super().update(recipe, validated_data)
 
     def to_representation(self, instance):
         request = self.context.get('request')
