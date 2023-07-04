@@ -229,22 +229,10 @@ class SubscriptionSerializer(UserSerializer):
     recipes = ShortRecipeSerializer(many=True, read_only=True)
     recipes_count = serializers.SerializerMethodField()
 
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count',
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + (
+            'recipes_count', 'recipes'
         )
-        read_only_fields = '__all__',
-
-    def get_is_subscribed(*args):
-        return True
 
     @staticmethod
     def get_recipes_count(obj):
