@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models.expressions import F
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -170,30 +171,32 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     @staticmethod
-    def add_ingredients(recipe, ingredients):
-        IngredientInRecipe.objects.bulk_create(
-            IngredientInRecipe(
-                ingredient_id=ingredient['id'],
-                recipe=recipe,
-                amount=ingredient.get('amount')
+    def add_ingredients(ingredients, recipe):
+        for ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            amount = ingredient['amount']
+            if IngredientInRecipe.objects.filter(
+                    recipe=recipe, ingredient=ingredient_id).exists():
+                amount += F('amount')
+            IngredientInRecipe.objects.update_or_create(
+                recipe=recipe, ingredient=ingredient_id,
+                defaults={'amount': amount}
             )
-            for ingredient in ingredients
-        )
 
     def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
-        self.add_ingredients(recipe, ingredients)
-        recipe.tags.set(tags)
+        recipe.tags.set(tags_data)
+        self.add_ingredients(ingredients_data, recipe)
         return recipe
 
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
         IngredientInRecipe.objects.filter(recipe=recipe).delete()
-        self.add_ingredients(recipe, ingredients)
-        if 'tags' in self.validated_data:
-            recipe.tags.set(validated_data.pop('tags'))
+        self.add_ingredients(ingredients, recipe)
+        recipe.tags.set(tags)
         return super().update(recipe, validated_data)
 
     def to_representation(self, instance):
