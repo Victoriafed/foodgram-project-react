@@ -183,28 +183,32 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
-        self.add_ingredients(recipe, ingredients)
-        recipe.tags.set(tags)
+        recipe.tags.set(tags_data)
+        self.add_ingredients(ingredients_data, recipe)
         return recipe
 
-    @transaction.atomic
     def update(self, recipe, validated_data):
-        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
         IngredientInRecipe.objects.filter(recipe=recipe).delete()
-        self.add_ingredients(recipe, ingredients)
-        if 'tags' in self.validated_data:
-            recipe.tags.clear()
-            recipe.tags.set(tags)
+        self.add_ingredients(ingredients, recipe)
+        recipe.tags.set(tags)
         return super().update(recipe, validated_data)
 
     def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return RecipeReadSerializer(instance, context=context).data
+        self.fields.pop('ingredients')
+        self.fields.pop('tags')
+        representation = super().to_representation(instance)
+        representation['ingredients'] = IngredientInRecipe(
+            IngredientInRecipe.objects.filter(recipe=instance), many=True
+        ).data
+        representation['tags'] = TagSerializer(
+            instance.tags, many=True
+        ).data
+        return representation
 
     def validate(self, data):
         ingredients = data['ingredients']
