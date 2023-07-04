@@ -225,7 +225,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(UserSerializer):
-    recipes = serializers.SerializerMethodField()
+    recipes = ShortRecipeSerializer()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -245,15 +245,6 @@ class SubscriptionSerializer(UserSerializer):
     @staticmethod
     def get_recipes_count(obj):
         return obj.recipe.count()
-
-    def get_recipes(self, obj):
-        request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
-        recipes = obj.recipe.all()
-        if limit:
-            recipes = recipes[:int(limit)]
-        serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
-        return serializer.data
 
     def validate(self, data):
         author = get_object_or_404(User, self.context.get['id'])
