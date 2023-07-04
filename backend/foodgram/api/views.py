@@ -150,8 +150,10 @@ class UserViewSet(DjoserViewSet):
         permission_classes=(permissions.IsAuthenticated,)
     )
     def subscriptions(self, request):
-        pages = self.paginate_queryset(
-            User.objects.filter(subscription_author__user=self.request.user)
-        )
-        serializer = SubscriptionSerializer(pages, many=True)
+        user = request.user
+        queryset = User.objects.filter(subscription_author__user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscriptionSerializer(pages,
+                                         many=True,
+                                         context={'request': request})
         return self.get_paginated_response(serializer.data)
