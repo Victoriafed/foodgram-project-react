@@ -18,8 +18,7 @@ from .pagination import CustomPagination
 from .permissions import IsAdminAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
                           RecipeSerializer, ShortRecipeSerializer,
-                          SubscriptionSerializer, TagSerializer,
-                          UserSerializer)
+                          SubscriptionSerializer, TagSerializer)
 
 User = get_user_model()
 
@@ -129,7 +128,7 @@ class UserViewSet(DjoserViewSet):
         permission_classes=[permissions.IsAuthenticated],
         methods=['POST', 'DELETE']
     )
-    def subscribe(self, request, id=None):
+    def subscribe(self, request, id):
         user = request.user
         author = get_object_or_404(User, id=id)
         if self.request.method == 'POST':
@@ -149,7 +148,9 @@ class UserViewSet(DjoserViewSet):
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if Subscription.objects.filter(user=user, author=author).exists():
-            subscribe = get_object_or_404(Subscription, user=user, author=author)
+            subscribe = get_object_or_404(
+                Subscription, user=user, author=author
+            )
             subscribe.delete()
             return Response(
                 'Подписка успешно удалена',
