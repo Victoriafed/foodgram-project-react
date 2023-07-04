@@ -226,7 +226,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(UserSerializer):
-    recipes = ShortRecipeSerializer(many=True, read_only=True)
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -249,3 +249,9 @@ class SubscriptionSerializer(UserSerializer):
     @staticmethod
     def get_recipes_count(obj):
         return obj.recipes.count()
+
+    @staticmethod
+    def get_recipes(obj):
+        queryset = Recipe.objects.filter(author=obj.author.id)
+        serializer = ShortRecipeSerializer(queryset, many=True)
+        return serializer.data
