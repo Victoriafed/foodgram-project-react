@@ -242,11 +242,11 @@ class SubscriptionSerializer(UserSerializer):
             'recipes',
             'recipes_count'
         )
-        read_only_fields = ('all')
+        read_only_fields = ('all',)
 
     @staticmethod
     def get_recipes_count(obj):
-        return Recipe.objects.filter(author=obj.author.id).count()
+        return obj.recipes.count()
 
     def validate(self, data):
         author = get_object_or_404(User, self.context.get['id'])
