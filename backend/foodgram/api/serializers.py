@@ -225,7 +225,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscribeSerializer(UserSerializer):
+class SubscriptionSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
@@ -258,7 +258,7 @@ class SubscribeSerializer(UserSerializer):
             recipes = obj.recipes.all()
         context = {'request': request}
         return ShortRecipeSerializer(recipes, many=True,
-                                      context=context).data
+                                     context=context).data
 
     @staticmethod
     def get_recipes_count(obj):

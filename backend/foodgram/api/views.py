@@ -134,28 +134,28 @@ class UserViewSet(DjoserViewSet):
         author = get_object_or_404(User, id=author_id)
         if request.method == 'POST':
             serializer = SubscriptionSerializer(author,
-                                         data=request.data,
-                                             context={"request": request})
+                                                data=request.data,
+                                                context={"request": request})
             serializer.is_valid(raise_exception=True)
             Subscription.objects.create(user=user, author=author)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-             subscription = get_object_or_404(Subscription,
+            subscription = get_object_or_404(Subscription,
                                              user=user,
                                              author=author)
-             subscription.delete()
-             return Response(status=status.HTTP_204_NO_CONTENT)
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
-        @action(
-            detail=False,
-            permission_classes=[permissions.IsAuthenticated]
-        )
-        def subscriptions(self, request):
-            user = request.user
-            queryset = User.objects.filter(subscribing__user=user)
-            pages = self.paginate_queryset(queryset)
-            serializer = SubscriptionSerializer(pages,
-                                             many=True,
-                                             context={'request': request})
-            return self.get_paginated_response(serializer.data)
+    @action(
+        detail=False,
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def subscriptions(self, request):
+        user = request.user
+        queryset = User.objects.filter(subscribing__user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscriptionSerializer(pages,
+                                            many=True,
+                                            context={'request': request})
+        return self.get_paginated_response(serializer.data)
