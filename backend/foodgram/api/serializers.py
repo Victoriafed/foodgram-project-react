@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -79,6 +78,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
@@ -190,17 +190,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         return recipe
 
-    @transaction.atomic()
-    def update(self, instance, validated_data):
-        tags = validated_data.pop('tags')
+    def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients')
-        instance = super().update(instance, validated_data)
-        instance.tags.clear()
-        instance.tags.set(tags)
-        instance.ingredients.clear()
-        self.add_ingredients(recipe=instance, ingredients=ingredients)
-        instance.save()
-        return instance
+        IngredientInRecipe.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(recipe, ingredients)
+        if 'tags' in self.validated_data:
+            recipe.tags.set(validated_data.pop('tags'))
+        return super().update(recipe, validated_data)
 
     def to_representation(self, instance):
         request = self.context.get('request')
@@ -214,12 +210,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Ингредиент в списке повторяется. Удалите повтор'
             )
-        for ingredient in ingredients:
-            if int(ingredient['amount']) < 0:
-                raise serializers.ValidationError({
-                    'ingredients': ('Убедитесь, что значение количества '
-                                    'ингредиента больше 0')
-                })
         return data
 
 
@@ -236,18 +226,12 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
-    email = serializers.ReadOnlyField(source='author.email')
-    id = serializers.ReadOnlyField(source='author.id')
-    username = serializers.ReadOnlyField(source='author.username')
-    first_name = serializers.ReadOnlyField(source='author.first_name')
-    last_name = serializers.ReadOnlyField(source='author.last_name')
-    recipes = serializers.SerializerMethodField()
+class SubscriptionSerializer(UserSerializer):
+    recipes = ShortRecipeSerializer(many=True, read_only=True)
     recipes_count = serializers.SerializerMethodField()
-    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = Subscription
+        model = User
         fields = (
             'email',
             'id',
@@ -258,18 +242,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count'
         )
-
-    @staticmethod
-    def get_is_subscribed(obj):
-        return Subscription.objects.filter(
-            user=obj.user,
-            author=obj.author).exists()
-
-    @staticmethod
-    def get_recipes(obj):
-        queryset = Recipe.objects.filter(author=obj.author.id)
-        serializer = ShortRecipeSerializer(queryset, many=True)
-        return serializer.data
+        read_only_fields = ('all')
 
     @staticmethod
     def get_recipes_count(obj):
