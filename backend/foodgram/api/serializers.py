@@ -175,7 +175,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     def add_ingredients(recipe, ingredients):
         IngredientInRecipe.objects.bulk_create(
             IngredientInRecipe(
-                ingredient=Ingredient.objects.get(id=ingredient.get('id')),
+                ingredient=Ingredient.objects.get(
+                    id=ingredient.get('id')),
                 recipe=recipe,
                 amount=ingredient.get('amount')
             )
@@ -195,7 +196,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe.ingredients.clear()
-        IngredientInRecipe.objects.filter(recipe=recipe).delete()
+        IngredientInRecipe.objects.filter(recipe=recipe).all().delete()
         self.add_ingredients(recipe, ingredients)
         if 'tags' in self.validated_data:
             recipe.tags.clear()
