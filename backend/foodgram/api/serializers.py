@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -189,13 +190,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         return recipe
 
-    def update(self, recipe, validated_data):
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        IngredientInRecipe.objects.filter(recipe=recipe).delete()
-        self.add_ingredients(recipe, ingredients)
-        if 'tags' in self.validated_data:
-            recipe.tags.set(validated_data.pop('tags'))
-        return super().update(recipe, validated_data)
+        instance = super().update(instance, validated_data)
+        instance.tags.clear()
+        instance.tags.set(tags)
+        instance.ingredients.clear()
+        self.add_ingredients(recipe=instance, ingredients=ingredients)
+        instance.save()
+        return instance
 
     def to_representation(self, instance):
         request = self.context.get('request')
