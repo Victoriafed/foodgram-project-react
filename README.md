@@ -72,7 +72,8 @@ docker compose exec web python manage.py collectstatic --no-input
 * Все эти функции нужно реализовать в стандартной админ-панели Django.
 
 ## Документация
-http://practicumvictoria.ddns.net/api/docs/
+[https://github.com/Victoriafed/foodgram-project-react/blob/master/docs/](https://github.com/Victoriafed/foodgram-project-react/blob/master/docs/)
+
 
 ## Автор
 [Федорова Виктория](https://github.com/Victoriafed)
